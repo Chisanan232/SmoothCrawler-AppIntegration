@@ -1,0 +1,1 @@
+smoothcrawler >= 0.2.0
