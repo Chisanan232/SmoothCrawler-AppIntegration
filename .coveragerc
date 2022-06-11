@@ -1,0 +1,6 @@
+[run]
+relative_files = True
+source=./appintegration
+
+omit =
+    */__init__.py
