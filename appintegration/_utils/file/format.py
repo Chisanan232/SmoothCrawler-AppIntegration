@@ -160,7 +160,15 @@ class XLSXFormat(File):
 
 
     def read(self) -> Iterable[Iterable]:
-        pass
+        from openpyxl import load_workbook
+
+        _workbook = load_workbook(filename=self.file_path, read_only=True)
+        _sheet_page_data = []
+        for _sheet in _workbook:
+            for _row in _sheet.iter_rows(min_row=_sheet.min_row, max_row=_sheet.max_row, min_col=_sheet.min_column, max_col=_sheet.max_column):
+                _data_row = [_cell.value for _cell in _row]
+                _sheet_page_data.append(_data_row)
+        return _sheet_page_data
 
 
     def close(self) -> None:
@@ -189,7 +197,10 @@ class JSONFormat(File):
 
 
     def read(self) -> Iterable[Iterable]:
-        pass
+        import json
+
+        _data = json.load(self.__JSON_IO)
+        return _data
 
 
     def close(self) -> None:
@@ -259,6 +270,7 @@ class Checking:
         :param data:
         :return:
         """
+
         __checksum = map(cls.__is_data_row, data)
         if False in list(__checksum):
             # raise DataRowFormatIsInvalidError
@@ -275,6 +287,7 @@ class Checking:
         :param data_row:
         :return:
         """
+
         if type(data_row) is list or type(data_row) is tuple:
             return cls.__is_data_content(data_row=data_row)
         else:
@@ -289,6 +302,7 @@ class Checking:
         :param data_row:
         :return:
         """
+
         chk_data_content = map(
             lambda row: False if isinstance(row, List) or isinstance(row, Tuple) else True,
             data_row)
