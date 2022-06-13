@@ -270,7 +270,31 @@ class TestXMLFormat(FormatTestSpec):
     def _reading_feature_expected_result(self, _file_format: BaseFile, _file_path: str, _mode: str, _data: Iterable[Iterable]) -> None:
         super(TestXMLFormat, self)._reading_feature_expected_result(_file_format=_file_format, _file_path=_file_path, _mode=_mode, _data=_data)
 
-        print(f"[DEBUG] _data: {_data}")
+        for index, d in enumerate(_data):
+            for ele_d, ele_o in zip(d, Test_Data_List[index][:len(d)]):
+                assert str(ele_d) == str(ele_o), "Each values in the data row should be the same."
+
+
+
+class TestPropertiesFormat(FormatTestSpec):
+
+    @pytest.fixture(scope="class")
+    def file_format(self) -> PropertiesFormat:
+        return PropertiesFormat()
+
+
+    def test_write(self, file_format: PropertiesFormat) -> None:
+        self._writing_process(_file_format=file_format, _file_path=Test_PROPERTIES_File_Path, _data=Test_Data_List)
+
+
+    def test_read(self, file_format: PropertiesFormat) -> None:
+        self._reading_process(_file_format=file_format, _file_path=Test_PROPERTIES_File_Path)
+        FormatTestSpec._remove_files(file=Test_PROPERTIES_File_Path)
+
+
+    def _reading_feature_expected_result(self, _file_format: BaseFile, _file_path: str, _mode: str, _data: Iterable[Iterable]) -> None:
+        super(TestPropertiesFormat, self)._reading_feature_expected_result(_file_format=_file_format, _file_path=_file_path, _mode=_mode, _data=_data)
+
         for index, d in enumerate(_data):
             for ele_d, ele_o in zip(d, Test_Data_List[index][:len(d)]):
                 assert str(ele_d) == str(ele_o), "Each values in the data row should be the same."
