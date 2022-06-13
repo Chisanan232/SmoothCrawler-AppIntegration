@@ -10,6 +10,7 @@ except ImportError:
 
 from xml.etree.ElementTree import Element
 import xml.etree.ElementTree as ET
+import configparser
 import json
 import csv
 
@@ -262,20 +263,40 @@ class XMLFormat(File):
 
 class PropertiesFormat(File):
 
+    _File_IO_Wrapper = None
+    __Config_Parser: configparser.ConfigParser = None
+
     def open(self) -> None:
-        pass
+        self._File_IO_Wrapper = open(file=self.file_path, mode=self.mode)
+        self.__Config_Parser = configparser.ConfigParser()
 
 
-    def write(self, data: Iterable[Iterable]) -> None:
-        pass
+    def write(self, data: Iterable[Iterable], sections: Iterable[str] = None) -> None:
+        if sections is None:
+            sections = [f"task_{i}" for i in range(1, len(data) + 1)]
+
+        for _section, _data_row in zip(sections, data):
+            self.__Config_Parser[_section] = {
+                f"{_section}.url": str(_data_row[0]),
+                f"{_section}.http_method": str(_data_row[1])
+            }
+
+        self.__Config_Parser.write(fp=self._File_IO_Wrapper)
 
 
     def read(self, *args, **kwargs) -> Iterable[Iterable]:
-        pass
+        _data = []
+        self.__Config_Parser.read(filenames=self.file_path)
+        _sections = self.__Config_Parser.sections()
+        for _section in _sections:
+            _config_content = list(self.__Config_Parser[_section].values())
+            _data.append(_config_content)
+
+        return _data
 
 
     def close(self) -> None:
-        pass
+        self._File_IO_Wrapper.close()
 
 
 
