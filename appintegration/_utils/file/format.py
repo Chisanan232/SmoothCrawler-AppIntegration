@@ -8,6 +8,8 @@ try:
 except ImportError:
     pass
 
+from xml.etree.ElementTree import Element
+import xml.etree.ElementTree as ET
 import json
 import csv
 
@@ -216,20 +218,45 @@ class JSONFormat(File):
 
 class XMLFormat(File):
 
+    _File_IO_Wrapper = None
+
     def open(self) -> None:
-        pass
+        self._File_IO_Wrapper = open(file=self.file_path, mode=self.mode)
 
 
     def write(self, data: Iterable[Iterable]) -> None:
-        pass
+        _tasks_ele = ET.Element("tasks")
+        for _data_row in data:
+            _task_ele = ET.SubElement(_tasks_ele, "task")
+
+            _url = ET.SubElement(_task_ele, "url")
+            _url.text = str(_data_row[0])
+
+            _http_method = ET.SubElement(_task_ele, "http-method")
+            _http_method.text = str(_data_row[1])
+
+        _tasks_xml_data = ET.tostring(element=_tasks_ele, encoding=self.encoding)
+        self._File_IO_Wrapper.write(_tasks_xml_data)
 
 
     def read(self, *args, **kwargs) -> Iterable[Iterable]:
-        pass
+        _lines = self._File_IO_Wrapper.readline()
+        _xml_root = ET.fromstringlist(_lines)
+
+        _data = []
+        for child in _xml_root:
+            _data_row = self._parse_task(task=child)
+            _data.append(_data_row)
+
+        return _data
+
+
+    def _parse_task(self, task: Element) -> list:
+        return [_task_content.text for _task_content in task]
 
 
     def close(self) -> None:
-        pass
+        self._File_IO_Wrapper.close()
 
 
 
