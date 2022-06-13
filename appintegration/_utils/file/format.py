@@ -1,6 +1,16 @@
 from typing import List, Tuple, Iterable, Union
 from abc import ABCMeta, ABC, abstractmethod
 
+try:
+    # It should install this package if user want to run the object *XLSXFormat*
+    # command line: pip install openpyxl
+    from openpyxl import load_workbook, Workbook
+except ImportError:
+    pass
+
+import json
+import csv
+
 
 
 class BaseFile(metaclass=ABCMeta):
@@ -108,8 +118,6 @@ class CSVFormat(File):
 
 
     def write(self, data: Iterable[Iterable]) -> None:
-        import csv
-
         # Check format of data
         csv_data = CSVFormat._data_handling(data=data)
         # Write data
@@ -119,8 +127,6 @@ class CSVFormat(File):
 
 
     def read(self, delimiter: str = ",", dialect: str = None) -> Iterable[Iterable]:
-        import csv
-
         csv_data = csv.reader(self._File_IO_Wrapper, delimiter=delimiter, dialect=dialect)
         _data = [_data_row for _data_row in csv_data]
         return _data
@@ -148,8 +154,6 @@ class XLSXFormat(File):
 
 
     def open(self) -> None:
-        from openpyxl import Workbook
-
         self.__WorkBook: Workbook = Workbook()
         self.__Sheet_Page = self.__WorkBook.create_sheet(index=0, title=self.__Sheet_Page_Name)
 
@@ -160,8 +164,6 @@ class XLSXFormat(File):
 
 
     def read(self) -> Iterable[Iterable]:
-        from openpyxl import load_workbook
-
         _workbook = load_workbook(filename=self.file_path, read_only=True)
         _sheet_page_data = []
         for _sheet in _workbook:
@@ -197,8 +199,6 @@ class JSONFormat(File):
 
 
     def read(self) -> Iterable[Iterable]:
-        import json
-
         _data = json.load(self.__JSON_IO)
         return _data
 
@@ -209,8 +209,6 @@ class JSONFormat(File):
 
     @staticmethod
     def _data_handling(data: List[list]) -> str:
-        import json
-
         json_data = json.dumps(data, ensure_ascii=False, default=str)
         return json_data
 
