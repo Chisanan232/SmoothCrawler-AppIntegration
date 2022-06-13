@@ -196,3 +196,55 @@ class TestCSVFormat(FormatTestSpec):
             for ele_d, ele_o in zip(d, Test_Data_List[index]):
                 assert str(ele_d) == str(ele_o), "Each values in the data row should be the same."
 
+
+
+class TestXLSXFormat(FormatTestSpec):
+
+    @pytest.fixture(scope="class")
+    def file_format(self) -> XLSXFormat:
+        return XLSXFormat()
+
+
+    def test_write(self, file_format: XLSXFormat) -> None:
+        self._writing_process(_file_format=file_format, _file_path=Test_XLSX_File_Path, _data=Test_Data_List)
+
+
+    def test_read(self, file_format: XLSXFormat) -> None:
+        self._reading_process(_file_format=file_format, _file_path=Test_XLSX_File_Path)
+        FormatTestSpec._remove_files(file=Test_XLSX_File_Path)
+
+
+    def _reading_feature_expected_result(self, _file_format: BaseFile, _file_path: str, _data: Iterable[Iterable]) -> None:
+        super(TestXLSXFormat, self)._reading_feature_expected_result(_file_format=_file_format, _file_path=_file_path, _data=_data)
+
+        for index, d in enumerate(_data):
+            for ele_d, ele_o in zip(d, Test_Data_List[index]):
+                assert str(ele_d) == str(ele_o), "Each values in the data row should be the same."
+
+
+
+class TestJSONFormat(FormatTestSpec):
+
+    @pytest.fixture(scope="class")
+    def file_format(self) -> JSONFormat:
+        return JSONFormat()
+
+
+    def test_write(self, file_format: JSONFormat) -> None:
+        self._writing_process(_file_format=file_format, _file_path=Test_JSON_File_Path, _data=Test_JSON_Data)
+
+
+    def test_read(self, file_format: JSONFormat) -> None:
+        self._reading_process(_file_format=file_format, _file_path=Test_JSON_File_Path)
+        FormatTestSpec._remove_files(file=Test_JSON_File_Path)
+
+
+    def _reading_feature_expected_result(self, _file_format: BaseFile, _file_path: str, _data: Iterable[Iterable]) -> None:
+        super(TestJSONFormat, self)._reading_feature_expected_result(_file_format=_file_format, _file_path=_file_path, _data=_data)
+
+        assert "data" in _data.keys(), "The key 'data' should be in the JSON format data."
+        assert _data["data"] is not None and len(_data["data"]) != 0, "It should has some data row with the key 'data' in JSON format content."
+        for index, d in enumerate(_data["data"]):
+            for ele_d, ele_o in zip(d, Test_Data_List[index]):
+                assert str(ele_d) == str(ele_o), "Each values in the data row should be the same."
+
