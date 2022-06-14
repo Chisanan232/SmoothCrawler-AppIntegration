@@ -111,7 +111,9 @@ class SaverTestSpec(metaclass=ABCMeta):
         """
 
         try:
+            _saver.open()
             _saver.write(data=_data)
+            _saver.close()
         except Exception:
             assert False, f"It should work finely without any issue.\n The error is: {traceback.format_exc()}"
         else:
@@ -156,7 +158,9 @@ class SaverTestSpec(metaclass=ABCMeta):
         """
 
         try:
+            _saver.open()
             _data = _saver.read()
+            _saver.close()
         except Exception:
             assert False, f"It should work finely without any issue.\n The error is: {traceback.format_exc()}"
         else:
