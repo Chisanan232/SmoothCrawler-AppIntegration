@@ -1,7 +1,7 @@
 from appintegration._utils.file.format import File
 from appintegration._utils.file.saver import BaseSaver, FileSaver
 
-from ._data import Test_Data_List
+from ..._data import Test_Data_List
 
 from typing import List, Iterable, TypeVar, Generic
 from abc import ABCMeta, abstractmethod

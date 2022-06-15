@@ -2,9 +2,18 @@ from appintegration._utils.file.format import (
     BaseFile, JSONFormat, CSVFormat, XLSXFormat, XMLFormat, PropertiesFormat
 )
 
-from ._data import Test_Data_List, Test_JSON_Data
+from ..._data import Test_Data_List, Test_JSON_Data
+from ..._config import (
+    # For file paths
+    Test_CSV_File_Path,
+    Test_XLSX_File_Path,
+    Test_JSON_File_Path,
+    Test_XML_File_Path,
+    Test_PROPERTIES_File_Path,
+    # For opening mode of file
+    Test_XML_Writing_Mode
+)
 
-from pathlib import Path
 from typing import List, Iterable, TypeVar, Union, Generic
 from abc import ABCMeta, abstractmethod
 import traceback
@@ -13,16 +22,6 @@ import os
 
 
 _BaseFile = TypeVar("_BaseFile", bound=BaseFile)
-
-Test_CSV_File_Path: str = str(Path("./for_testing.csv"))
-Test_XLSX_File_Path: str = str(Path("./for_testing.xlsx"))
-Test_JSON_File_Path: str = str(Path("./for_testing.json"))
-Test_XML_File_Path: str = str(Path("./for_testing.xml"))
-Test_PROPERTIES_File_Path: str = str(Path("./for_testing.properties"))
-
-Test_Writing_Mode: str = "a+"
-Test_XML_Writing_Mode: str = "wb"
-Test_Reading_Mode: str = "r"
 
 Run_Procedure_List: List[str] = []
 Run_Result_Data_List = []
