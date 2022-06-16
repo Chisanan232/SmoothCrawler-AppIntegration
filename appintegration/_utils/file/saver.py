@@ -7,6 +7,15 @@ from .format import BaseFile as _BaseFile
 
 class BaseSaver(metaclass=ABCMeta):
 
+    """
+    *saver* module be an adapter of the module of module *format*. It could provide APIs
+    to others to use and guarantee the features works finely from ruled interface.
+
+    *saver* is responsible of APIs usage compatibility. But it may change to define the
+    usage procedure and turn to be a *Builder*, which means these modules would change
+    to be Builder Pattern from Adapter Pattern.
+    """
+
     _File: _BaseFile = None
 
     def __init__(self, file: _BaseFile, file_name: str, mode: str, encoding: str):
@@ -17,6 +26,14 @@ class BaseSaver(metaclass=ABCMeta):
         self._File.file_path = file_name
         self._File.mode = mode
         self._File.encoding = encoding
+
+
+    def __enter__(self):
+        self.open()
+
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
 
     @property
@@ -35,6 +52,11 @@ class BaseSaver(metaclass=ABCMeta):
 
 
     @abstractmethod
+    def open(self) -> None:
+        pass
+
+
+    @abstractmethod
     def write(self, data: List[list]) -> None:
         pass
 
@@ -44,18 +66,27 @@ class BaseSaver(metaclass=ABCMeta):
         pass
 
 
+    @abstractmethod
+    def close(self) -> None:
+        pass
+
+
 
 class FileSaver(BaseSaver):
 
-    def write(self, data: List[list]) -> None:
+    def open(self) -> None:
         self._File.open()
+
+
+    def write(self, data: List[list]) -> None:
         self._File.write(data=data)
-        self._File.close()
 
 
     def read(self) -> Iterable[Iterable]:
-        self._File.open()
         _data = self._File.read()
-        self._File.close()
         return _data
+
+
+    def close(self) -> None:
+        self._File.close()
 
