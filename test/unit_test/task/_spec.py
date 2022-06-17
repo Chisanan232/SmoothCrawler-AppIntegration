@@ -115,7 +115,8 @@ class AppIntegrationTaskTestSpec(metaclass=ABCMeta):
         :return: None
         """
 
-        _file_path = kwargs.get("file_path")
+        _file_path = kwargs.get("file_path", None)
+        assert _file_path is not None, "The file path should NOT be None value."
         _exist_file = os.path.exists(_file_path)
         assert _exist_file is True, "It should exist a file."
 
