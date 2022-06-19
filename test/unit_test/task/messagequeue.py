@@ -140,7 +140,7 @@ class MessageQueueTaskTestSpec:
         pass
 
 
-    def test_publish_and_subscribe_features(self, task_for_generating: KafkaTask, task_for_acquiring: KafkaTask):
+    def test_publish_and_subscribe_features(self, task_for_generating: Generic[_MQTask], task_for_acquiring: Generic[_MQTask]):
         """
         This is the major function to run testing. It would test producer and consumer in the same time.
 
@@ -163,7 +163,7 @@ class MessageQueueTaskTestSpec:
             raise Global_Exception
 
 
-    def _publishing_process(self, _task: KafkaTask) -> None:
+    def _publishing_process(self, _task: Generic[_MQTask]) -> None:
         """
         The truly implementation of producing feature usage.
         The running procedure is:
@@ -196,7 +196,7 @@ class MessageQueueTaskTestSpec:
 
 
     @abstractmethod
-    def _sending_feature(self, _task: KafkaTask, topic: str, value: bytes) -> None:
+    def _sending_feature(self, _task: Generic[_MQTask], topic: str, value: bytes) -> None:
         """
         The truly implement of sending (or it calls publishing) something to message middle component system.
 
@@ -209,7 +209,7 @@ class MessageQueueTaskTestSpec:
         pass
 
 
-    def _subscribing_process(self, _task: KafkaTask) -> None:
+    def _subscribing_process(self, _task: Generic[_MQTask]) -> None:
         """
         The truly implementation of consuming feature usage.
         The running procedure is:
@@ -235,7 +235,7 @@ class MessageQueueTaskTestSpec:
 
 
     @abstractmethod
-    def _poll_feature(self, _task: KafkaTask) -> None:
+    def _poll_feature(self, _task: Generic[_MQTask]) -> None:
         """
         The truly implement of polling (or it calls consuming) something from message middle component system.
 
