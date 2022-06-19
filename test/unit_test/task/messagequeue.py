@@ -23,6 +23,13 @@ MessageQueueBodies: list = []
 Global_Exception = None
 
 
+def _reset_test_state() -> None:
+    global MessageQueueCnt, MessageQueueBodies, Global_Exception
+    MessageQueueCnt = 0
+    MessageQueueBodies.clear()
+    Global_Exception = None
+
+
 class MessageQueueConfigTestSpec(metaclass=ABCMeta):
 
     """
