@@ -25,13 +25,32 @@ Global_Exception = None
 
 class MessageQueueConfigTestSpec(metaclass=ABCMeta):
 
+    """
+    Spec of testing items about object **XXXConfig** of module *appintegration.task.messagequeue*.
+    In other words, it means that for the sub-class of object **MessageQueueConfig**.
+    """
+
     @abstractmethod
     def config(self, **kwargs) -> Generic[_MsgQueueConfig]:
+        """
+        Which object it should test for.
+
+        :param kwargs: The arguments of the object it may have.
+        :return: The instance of the sub-class of **MessageQueueConfig**.
+        """
+
         pass
 
 
     @abstractmethod
     def test_generate(self, config: Generic[_MsgQueueConfig]) -> None:
+        """
+        Test for the function *generate*.
+
+        :param config: The instance of function *config* return value in current class.
+        :return: None
+        """
+
         pass
 
 
