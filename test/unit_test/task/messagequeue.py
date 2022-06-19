@@ -2,18 +2,12 @@ from appintegration.task.framework import ApplicationIntegrationSourceTask, Appl
 from appintegration.task.messagequeue import (
     MessageQueueConfig, MessageQueueTask,
     KafkaConfig, KafkaTask,
-    RabbitMQConfig, RabbitMQTask,
-    ActiveMQConfig, ActiveMQTask
 )
 
-from ._spec import AppIntegrationTaskTestSpec
-
-from typing import List, Any, Union, Type, TypeVar, Generic, Iterable
+from typing import Any, Union, TypeVar, Generic, Iterable
 from abc import ABCMeta, abstractmethod
 import threading
-import traceback
 import pytest
-import random
 import time
 
 
@@ -262,63 +256,4 @@ class TestKafkaTask(MessageQueueTaskTestSpec):
 
         assert len(MessageQueueBodies) == TestingMessageCnt - 1, ""
         assert MessageQueueCnt == TestingMessageCnt - 1, ""
-
-
-
-class TestRabbitMQTask(MessageQueueTaskTestSpec):
-
-    @pytest.fixture(scope="class")
-    def config_for_producer(self) -> KafkaConfig:
-        pass
-
-
-    @pytest.fixture(scope="class")
-    def config_for_consumer(self) -> KafkaConfig:
-        pass
-
-
-    @pytest.fixture(scope="class")
-    def task_for_generating(self, config_for_producer: KafkaConfig) -> KafkaTask:
-        pass
-
-
-    @pytest.fixture(scope="class")
-    def task_for_acquiring(self, config_for_consumer: KafkaConfig) -> KafkaTask:
-        pass
-
-
-    def _sending_feature(self, _task: KafkaTask, topic: str, value: bytes) -> None:
-        pass
-
-
-    def _poll_feature(self, _task: KafkaTask) -> None:
-        pass
-
-
-    @property
-    def _testing_topic(self) -> str:
-        pass
-
-
-    def _chk_generate_running_result(self, **kwargs) -> None:
-        pass
-
-
-    def _chk_acquire_running_result(self, **kwargs) -> None:
-        pass
-
-
-
-class TestActiveMQTask(AppIntegrationTaskTestSpec):
-
-    def _testing_data(self) -> Union[Iterable[Iterable], Any]:
-        pass
-
-
-    def _chk_generate_running_result(self, **kwargs) -> None:
-        pass
-
-
-    def _chk_acquire_running_result(self, **kwargs) -> None:
-        pass
 
