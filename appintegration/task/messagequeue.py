@@ -35,7 +35,7 @@ from .framework import ApplicationIntegrationSourceTask as _SourceTask, Applicat
 class MessageQueueConfig(metaclass=ABCMeta):
 
     @abstractmethod
-    def generate(self, **kwargs) -> dict:
+    def generate(self, **kwargs) -> Union[dict, Any]:
         pass
 
 
@@ -277,15 +277,72 @@ class KafkaTask(MessageQueueTask):
 
 class RabbitMQConfig(MessageQueueConfig):
 
-    Default_RabbitMQ_Config = {}
+    Default_RabbitMQ_Config: dict = {
+        "host": None,
+        "port": None,
+        "virtual_host": None,
+        "credentials": None,
+        "channel_max": None,
+        "frame_max": None,
+        "heartbeat": None,
+        "ssl_options": None,
+        "connection_attempts": None,
+        "retry_delay": None,
+        "socket_timeout": None,
+        "stack_timeout": None,
+        "locale": None,
+        "blocked_connection_timeout": None,
+        "client_properties": None,
+        "tcp_options": None
+    }
 
-    def generate(self, **kwargs) -> dict:
-        pass
+    _DEFAULT = ConnectionParameters._DEFAULT
+
+    def __init__(self, host=_DEFAULT,
+                 port=_DEFAULT,
+                 virtual_host=_DEFAULT,
+                 credentials=_DEFAULT,
+                 channel_max=_DEFAULT,
+                 frame_max=_DEFAULT,
+                 heartbeat=_DEFAULT,
+                 ssl_options=_DEFAULT,
+                 connection_attempts=_DEFAULT,
+                 retry_delay=_DEFAULT,
+                 socket_timeout=_DEFAULT,
+                 stack_timeout=_DEFAULT,
+                 locale=_DEFAULT,
+                 blocked_connection_timeout=_DEFAULT,
+                 client_properties=_DEFAULT,
+                 tcp_options=_DEFAULT):
+
+        self.Default_RabbitMQ_Config.update({
+            "host": host,
+            "port": port,
+            "virtual_host": virtual_host,
+            "credentials": credentials,
+            "channel_max": channel_max,
+            "frame_max": frame_max,
+            "heartbeat": heartbeat,
+            "ssl_options": ssl_options,
+            "connection_attempts": connection_attempts,
+            "retry_delay": retry_delay,
+            "socket_timeout": socket_timeout,
+            "stack_timeout": stack_timeout,
+            "locale": locale,
+            "blocked_connection_timeout": blocked_connection_timeout,
+            "client_properties": client_properties,
+            "tcp_options": tcp_options
+        })
+
+
+    def generate(self, **kwargs) -> ConnectionParameters:
+        return ConnectionParameters(**self.Default_RabbitMQ_Config)
 
 
 
 class RabbitMQTask(MessageQueueTask):
 
+    _Config: ConnectionParameters = None
     _Connection = None
     _Channel = None
 
@@ -293,10 +350,9 @@ class RabbitMQTask(MessageQueueTask):
 
     def init(self, config: RabbitMQConfig, **kwargs) -> Any:
         MessageQueueTask._chk_config(config, RabbitMQConfig)
+        self._Config = config.generate()
 
-        self._Connection = BlockingConnection(
-            parameters=ConnectionParameters("localhost", 5672, "/", PlainCredentials("user", "password"))
-        )
+        self._Connection = BlockingConnection(parameters=self._Config)
         self._Channel = self._Connection.channel()
 
 
