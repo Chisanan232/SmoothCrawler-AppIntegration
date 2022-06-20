@@ -385,19 +385,72 @@ class RabbitMQTask(MessageQueueTask):
 
 class ActiveMQConfig(MessageQueueConfig):
 
+    _Default_Config: dict = {
+        "host_and_ports": None,
+        "prefer_localhost": True,
+        "try_loopback_connect": True,
+        "reconnect_sleep_initial": 0.1,
+        "reconnect_sleep_increase": 0.5,
+        "reconnect_sleep_jitter": 0.1,
+        "reconnect_sleep_max": 60.0,
+        "reconnect_attempts_max": 3,
+        "timeout": None,
+        "keepalive": None,
+        "auto_decode": True,
+        "encoding": "utf-8",
+        "auto_content_length": True,
+        "bind_host_port": None
+    }
+
+    def __init__(self,
+                 host_and_ports=None,
+                 prefer_localhost=True,
+                 try_loopback_connect=True,
+                 reconnect_sleep_initial=0.1,
+                 reconnect_sleep_increase=0.5,
+                 reconnect_sleep_jitter=0.1,
+                 reconnect_sleep_max=60.0,
+                 reconnect_attempts_max=3,
+                 timeout=None,
+                 keepalive=None,
+                 auto_decode=True,
+                 encoding="utf-8",
+                 auto_content_length=True,
+                 bind_host_port=None):
+
+        self._Default_Config.update({
+            "host_and_ports": host_and_ports,
+            "prefer_localhost": prefer_localhost,
+            "try_loopback_connect": try_loopback_connect,
+            "reconnect_sleep_initial": reconnect_sleep_initial,
+            "reconnect_sleep_increase": reconnect_sleep_increase,
+            "reconnect_sleep_jitter": reconnect_sleep_jitter,
+            "reconnect_sleep_max": reconnect_sleep_max,
+            "reconnect_attempts_max": reconnect_attempts_max,
+            "timeout": timeout,
+            "keepalive": keepalive,
+            "auto_decode": auto_decode,
+            "encoding": encoding,
+            "auto_content_length": auto_content_length,
+            "bind_host_port": bind_host_port
+        })
+
+
     def generate(self, **kwargs) -> dict:
-        pass
+        return self._Default_Config
 
 
 
 class ActiveMQTask(MessageQueueTask):
 
+    _Config: dict = None
     _Connection = None
 
     def init(self, config: ActiveMQConfig, **kwargs) -> Any:
         MessageQueueTask._chk_config(config, ActiveMQConfig)
+        self._Config = config.generate()
 
-        self._Connection = Connection10([("127.0.0.1", 61613)])
+        self._Connection = Connection10(**self._Config)
         self._Connection.connect()
 
 
@@ -405,7 +458,7 @@ class ActiveMQTask(MessageQueueTask):
         self._Connection.send(destination=destination, body=body, content_type=content_type, headers=headers, **keyword_headers)
 
 
-    def poll(self, destination: str, callback: Callable, id: str = None, ack:str = "auto", headers: dict = None, **keyword_headers) -> None:
+    def poll(self, destination: str, callback: Callable, id: str = None, ack: str = "auto", headers: dict = None, **keyword_headers) -> None:
 
         class _Listener(ConnectionListener):
 
@@ -416,7 +469,7 @@ class ActiveMQTask(MessageQueueTask):
         self._Connection.subscribe(destination=destination, id=id, ack=ack, headers=headers, **keyword_headers)
 
         while True:
-            time.sleep(10)
+            time.sleep(5)
 
 
     def close(self) -> None:
