@@ -252,7 +252,7 @@ class KafkaTask(MessageQueueTask):
         MessageQueueTask._chk_config(config, KafkaConfig)
         self._Config = config.generate()
 
-        assert config.is_producer() or config.is_consumer(), ""
+        assert config.is_producer() or config.is_consumer(), "It must be producer or consumer."
 
         if config.is_producer():
             self._Kafka_App = KafkaProducer(**self._Config)
