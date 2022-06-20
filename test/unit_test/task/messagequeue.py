@@ -369,7 +369,8 @@ class TestKafkaTask(MessageQueueTaskTestSpec):
             # _task.poll(callback=_callback)
             _task.acquire(callback=_callback)
         except Exception as e:
-            assert type(e) is InterruptedError, ""
+            assert type(e) is InterruptedError and "Stop the thread for consumer." in str(e), \
+                "The exception should be the 'InterruptedError' and content is stopping consumer thread."
 
 
     @property
@@ -384,8 +385,8 @@ class TestKafkaTask(MessageQueueTaskTestSpec):
     def _chk_acquire_running_result(self, **kwargs) -> None:
         global MessageQueueBodies, MessageQueueCnt
 
-        assert len(MessageQueueBodies) == TestingMessageCnt - 1, ""
-        assert MessageQueueCnt == TestingMessageCnt - 1, ""
+        assert len(MessageQueueBodies) == TestingMessageCnt - 1, f"The length of list which saves messages should be {TestingMessageCnt - 1}"
+        assert MessageQueueCnt == TestingMessageCnt - 1, f"The counter of consuming messages should be {TestingMessageCnt - 1}"
 
 
 
@@ -449,7 +450,8 @@ class TestRabbitMQTask(MessageQueueTaskTestSpec):
             # _task.poll(queue=_topic, callback=_callback, auto_ack=True)
             _task.acquire(queue=_topic, callback=_callback, auto_ack=True)
         except Exception as e:
-            assert type(e) is InterruptedError, ""
+            assert type(e) is InterruptedError and "Stop the thread for consumer." in str(e), \
+                "The exception should be the 'InterruptedError' and content is stopping consumer thread."
 
 
     @property
@@ -464,8 +466,8 @@ class TestRabbitMQTask(MessageQueueTaskTestSpec):
     def _chk_acquire_running_result(self, **kwargs) -> None:
         global MessageQueueBodies, MessageQueueCnt
 
-        assert len(MessageQueueBodies) == TestingMessageCnt - 1, ""
-        assert MessageQueueCnt == TestingMessageCnt - 1, ""
+        assert len(MessageQueueBodies) == TestingMessageCnt - 1, f"The length of list which saves messages should be {TestingMessageCnt - 1}"
+        assert MessageQueueCnt == TestingMessageCnt - 1, f"The counter of consuming messages should be {TestingMessageCnt - 1}"
 
 
 
@@ -551,12 +553,9 @@ class TestActiveMQTask(MessageQueueTaskTestSpec):
                 raise SystemExit()
                 # raise InterruptedError("Stop the thread for consumer.")
 
-        try:
-            _topic = self._testing_topic
-            # _task.poll(destination=_topic, callback=_callback)
-            _task.acquire(destination=_topic, callback=_callback)
-        except Exception as e:
-            assert type(e) is InterruptedError, ""
+        _topic = self._testing_topic
+        # _task.poll(destination=_topic, callback=_callback)
+        _task.acquire(destination=_topic, callback=_callback)
 
 
     @property
@@ -571,6 +570,6 @@ class TestActiveMQTask(MessageQueueTaskTestSpec):
     def _chk_acquire_running_result(self, **kwargs) -> None:
         global MessageQueueBodies, MessageQueueCnt
 
-        assert len(MessageQueueBodies) == TestingMessageCnt - 1, ""
-        assert MessageQueueCnt == TestingMessageCnt - 1, ""
+        assert len(MessageQueueBodies) == TestingMessageCnt - 1, f"The length of list which saves messages should be {TestingMessageCnt - 1}"
+        assert MessageQueueCnt == TestingMessageCnt - 1, f"The counter of consuming messages should be {TestingMessageCnt - 1}"
 
