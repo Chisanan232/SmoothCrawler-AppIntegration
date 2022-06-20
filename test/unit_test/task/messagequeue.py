@@ -1,10 +1,12 @@
 from appintegration.task.framework import ApplicationIntegrationSourceTask, ApplicationIntegrationProcessorTask
 from appintegration.task.messagequeue import (
     MessageQueueConfig, MessageQueueTask,
-    KafkaConfig, KafkaTask
+    KafkaConfig, KafkaTask,
+    RabbitMQConfig, RabbitMQTask
 )
 
 from typing import Any, Union, TypeVar, Generic, Iterable
+from pika import ConnectionParameters, PlainCredentials
 from abc import ABCMeta, abstractmethod
 import threading
 import pytest
@@ -94,7 +96,7 @@ class MessageQueueTaskTestSpec:
         :return: The instance of object for component *Processor Application* or be called *Producer*.
         """
 
-        pass
+        return config
 
 
     @pytest.fixture(scope="class")
@@ -107,7 +109,7 @@ class MessageQueueTaskTestSpec:
         :return: The instance of object for component *Source Application* or be called *Consumer*.
         """
 
-        pass
+        return config
 
 
     @pytest.fixture(scope="class")
@@ -148,6 +150,8 @@ class MessageQueueTaskTestSpec:
         :param task_for_acquiring: The instance of sub-class of **MessageQueueTask** for *Consumer*.
         :return: None
         """
+
+        _reset_test_state()
 
         _test_consumer = threading.Thread(target=self._subscribing_process, args=(task_for_acquiring, ))
         _test_producer = threading.Thread(target=self._publishing_process, args=(task_for_generating, ))
@@ -307,13 +311,13 @@ class TestKafkaConfig(MessageQueueConfigTestSpec):
 
 
     def test_is_producer(self) -> None:
-        _config = KafkaConfig(role="producer")
+        _config = self.config(role="producer")
         assert _config.is_producer() is True, "It should be True because we initial *KafkaConfig* as *producer*."
         assert _config.is_consumer() is False, "It should be False because we initial *KafkaConfig* as *producer*."
 
 
     def test_is_consumer(self) -> None:
-        _config = KafkaConfig(role="consumer")
+        _config = self.config(role="consumer")
         assert _config.is_consumer() is True, "It should be True because we initial *KafkaConfig* as *consumer*."
         assert _config.is_producer() is False, "It should be False because we initial *KafkaConfig* as *consumer*."
 
@@ -370,6 +374,86 @@ class TestKafkaTask(MessageQueueTaskTestSpec):
     @property
     def _testing_topic(self) -> str:
         return "pytest-kafka"
+
+
+    def _chk_generate_running_result(self, **kwargs) -> None:
+        pass
+
+
+    def _chk_acquire_running_result(self, **kwargs) -> None:
+        global MessageQueueBodies, MessageQueueCnt
+
+        assert len(MessageQueueBodies) == TestingMessageCnt - 1, ""
+        assert MessageQueueCnt == TestingMessageCnt - 1, ""
+
+
+
+class TestRabbitMQConfig(MessageQueueConfigTestSpec):
+
+    @pytest.fixture(scope="class")
+    def config(self, **kwargs) -> RabbitMQConfig:
+        return RabbitMQConfig("localhost", 5672, "/", PlainCredentials("user", "password"))
+
+
+    def test_generate(self, config: RabbitMQConfig) -> None:
+        _config = config.generate()
+        assert isinstance(_config, ConnectionParameters) is True, ""
+
+
+
+class TestRabbitMQTask(MessageQueueTaskTestSpec):
+
+    @pytest.fixture(scope="class")
+    def config(self) -> RabbitMQConfig:
+        return RabbitMQConfig("localhost", 5672, "/", PlainCredentials("user", "password"))
+
+
+    @pytest.fixture(scope="class")
+    def task_for_generating(self, config_for_producer: RabbitMQConfig) -> RabbitMQTask:
+        _rabbit_task = RabbitMQTask()
+        _rabbit_task.init(config=config_for_producer)
+        return _rabbit_task
+
+
+    @pytest.fixture(scope="class")
+    def task_for_acquiring(self, config_for_consumer: RabbitMQConfig) -> RabbitMQTask:
+        _rabbit_task = RabbitMQTask()
+        _rabbit_task.init(config=config_for_consumer)
+        return _rabbit_task
+
+
+    def _sending_feature(self, _task: RabbitMQTask, topic: str, value: bytes) -> None:
+        # _task.send(exchange="", routing_key=topic, body=value)
+        _task.generate(exchange="", routing_key=topic, body=value)
+        time.sleep(0.5)
+
+
+    def _poll_feature(self, _task: RabbitMQTask) -> None:
+
+        def _callback(ch, method, properties, body) -> None:
+            global MessageQueueBodies, MessageQueueCnt
+
+            assert ch is not None, "The message channel from RabbitMQ should NOT be empty."
+            assert method is not None, "The message method from RabbitMQ should NOT be empty."
+            assert properties is not None, "The message properties from RabbitMQ should NOT be empty."
+            assert body is not None, "The message body from RabbitMQ should NOT be empty."
+
+            MessageQueueBodies.append(body)
+            MessageQueueCnt += 1
+            if MessageQueueCnt == TestingMessageCnt - 1:
+                raise InterruptedError("Stop the thread for consumer.")
+
+        try:
+            _topic = self._testing_topic
+            # _task.poll(queue=_topic, callback=_callback, auto_ack=True)
+            _task.acquire(queue=_topic, callback=_callback, auto_ack=True)
+        except Exception as e:
+            assert type(e) is InterruptedError, ""
+
+
+    @property
+    def _testing_topic(self) -> str:
+        return "pytest-rabbit"
 
 
     def _chk_generate_running_result(self, **kwargs) -> None:
