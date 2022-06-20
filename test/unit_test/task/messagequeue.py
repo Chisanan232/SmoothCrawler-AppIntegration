@@ -2,7 +2,8 @@ from appintegration.task.framework import ApplicationIntegrationSourceTask, Appl
 from appintegration.task.messagequeue import (
     MessageQueueConfig, MessageQueueTask,
     KafkaConfig, KafkaTask,
-    RabbitMQConfig, RabbitMQTask
+    RabbitMQConfig, RabbitMQTask,
+    ActiveMQConfig, ActiveMQTask
 )
 
 from typing import Any, Union, TypeVar, Generic, Iterable
@@ -454,6 +455,113 @@ class TestRabbitMQTask(MessageQueueTaskTestSpec):
     @property
     def _testing_topic(self) -> str:
         return "pytest-rabbit"
+
+
+    def _chk_generate_running_result(self, **kwargs) -> None:
+        pass
+
+
+    def _chk_acquire_running_result(self, **kwargs) -> None:
+        global MessageQueueBodies, MessageQueueCnt
+
+        assert len(MessageQueueBodies) == TestingMessageCnt - 1, ""
+        assert MessageQueueCnt == TestingMessageCnt - 1, ""
+
+
+
+class TestActiveMQConfig(MessageQueueConfigTestSpec):
+
+    @pytest.fixture(scope="class")
+    def config(self, **kwargs) -> Generic[_MsgQueueConfig]:
+        return ActiveMQConfig([("127.0.0.1", 61613)])
+
+
+    def test_generate(self, config: Generic[_MsgQueueConfig]) -> None:
+        _config = config.generate()
+        assert type(_config) is dict, ""
+
+
+
+class TestActiveMQTask(MessageQueueTaskTestSpec):
+
+    @pytest.fixture(scope="class")
+    def config(self) -> ActiveMQConfig:
+        return ActiveMQConfig([("127.0.0.1", 61613)])
+
+
+    @pytest.fixture(scope="class")
+    def task_for_generating(self, config_for_producer: ActiveMQConfig) -> ActiveMQTask:
+        _active_task = ActiveMQTask()
+        _active_task.init(config=config_for_producer)
+        return _active_task
+
+
+    @pytest.fixture(scope="class")
+    def task_for_acquiring(self, config_for_consumer: ActiveMQConfig) -> ActiveMQTask:
+        _active_task = ActiveMQTask()
+        _active_task.init(config=config_for_consumer)
+        return _active_task
+
+
+    def test_publish_and_subscribe_features(self, task_for_generating: Generic[_MQTask], task_for_acquiring: Generic[_MQTask]):
+        """
+        In ActiveMQ case, it override this testing major function because it would run as a thread in
+        package stomp, so it would be blocking forever if you just raise an exception. That's the reason
+        why it set the consumer thread as a daemon thread.
+
+        :param task_for_generating: The instance of sub-class of **MessageQueueTask** for *Producer*.
+        :param task_for_acquiring: The instance of sub-class of **MessageQueueTask** for *Consumer*.
+        :return: None
+        """
+
+        _reset_test_state()
+
+        _test_consumer = threading.Thread(target=self._subscribing_process, args=(task_for_acquiring, ))
+        _test_consumer.daemon = True
+        _test_producer = threading.Thread(target=self._publishing_process, args=(task_for_generating, ))
+
+        _test_consumer.start()
+        _test_producer.start()
+
+        _test_producer.join()
+        # _test_consumer.join()
+
+        global Global_Exception
+        if Global_Exception is not None:
+            raise Global_Exception
+
+
+    def _sending_feature(self, _task: ActiveMQTask, topic: str, value: bytes) -> None:
+        # _task.send(destination=topic, body=str(value))
+        _task.generate(destination=topic, body=str(value))
+        time.sleep(0.5)
+
+
+    def _poll_feature(self, _task: ActiveMQTask) -> None:
+
+        def _callback(frame) -> None:
+            global MessageQueueBodies, MessageQueueCnt
+
+            assert frame is not None, "The message frame object from ActiveMQ should NOT be empty."
+
+            MessageQueueBodies.append(frame)
+            MessageQueueCnt += 1
+            if MessageQueueCnt == TestingMessageCnt - 1:
+                # _task.close()
+                raise SystemExit()
+                # raise InterruptedError("Stop the thread for consumer.")
+
+        try:
+            _topic = self._testing_topic
+            # _task.poll(destination=_topic, callback=_callback)
+            _task.acquire(destination=_topic, callback=_callback)
+        except Exception as e:
+            assert type(e) is InterruptedError, ""
+
+
+    @property
+    def _testing_topic(self) -> str:
+        return "/topic/PyTestActive"
 
 
     def _chk_generate_running_result(self, **kwargs) -> None:
