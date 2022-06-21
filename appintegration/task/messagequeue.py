@@ -56,7 +56,7 @@ class MessageQueueConfigTypeError(TypeError):
 class MessageQueueTask(_SourceTask, _ProcessorTask):
 
     @abstractmethod
-    def init(self, config: Generic[_MsgQueueConfig], **kwargs) -> Any:
+    def init(self, config: Generic[_MsgQueueConfig]) -> Any:
         pass
 
 
@@ -217,8 +217,9 @@ class KafkaConfig(MessageQueueConfig):
     }
 
 
-    def __init__(self, role: str, **kwargs):
+    def __init__(self, role: str, topics: Union[str, tuple] = "", **kwargs):
         self._role = role
+        self._topics = topics
         self._config = kwargs
 
 
@@ -241,13 +242,17 @@ class KafkaConfig(MessageQueueConfig):
         return self._role == "consumer"
 
 
+    def topics(self) -> Union[str, tuple]:
+        return self._topics
+
+
 
 class KafkaTask(MessageQueueTask):
 
     _Config: dict = None
     _Kafka_App: Union[KafkaProducer, KafkaConsumer] = None
 
-    def init(self, config: KafkaConfig, **kwargs) -> Any:
+    def init(self, config: KafkaConfig) -> Any:
         # Initial Kafka components configuration
         MessageQueueTask._chk_config(config, KafkaConfig)
         self._Config = config.generate()
@@ -257,7 +262,7 @@ class KafkaTask(MessageQueueTask):
         if config.is_producer():
             self._Kafka_App = KafkaProducer(**self._Config)
         elif config.is_consumer():
-            _topics = kwargs.get("topics")
+            _topics = config.topics()
             self._Kafka_App = KafkaConsumer(_topics, **self._Config)
 
 
@@ -348,7 +353,7 @@ class RabbitMQTask(MessageQueueTask):
 
     _Declare_Flag: bool = False
 
-    def init(self, config: RabbitMQConfig, **kwargs) -> Any:
+    def init(self, config: RabbitMQConfig) -> Any:
         MessageQueueTask._chk_config(config, RabbitMQConfig)
         self._Config = config.generate()
 
@@ -446,7 +451,7 @@ class ActiveMQTask(MessageQueueTask):
     _Config: dict = None
     _Connection = None
 
-    def init(self, config: ActiveMQConfig, **kwargs) -> Any:
+    def init(self, config: ActiveMQConfig) -> Any:
         MessageQueueTask._chk_config(config, ActiveMQConfig)
         self._Config = config.generate()
 
