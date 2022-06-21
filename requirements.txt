@@ -1,1 +1,11 @@
+###### SmoothCrawler-AppIntegration Dependencies Requirements ######
+## Code - Basic ##
 smoothcrawler >= 0.2.0
+
+## Code - File Based ##
+openpyxl >= 2.6.1
+
+## Code - Message Queue ##
+kafka-python >= 2.0.2
+pika >= 1.2.1
+stomp.py >= 8.0.1

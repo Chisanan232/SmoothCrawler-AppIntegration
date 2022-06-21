@@ -1,6 +1,19 @@
 from typing import List, Tuple, Iterable, Union
 from abc import ABCMeta, ABC, abstractmethod
 
+try:
+    # It should install this package if user want to run the object *XLSXFormat*
+    # command line: pip install openpyxl
+    from openpyxl import load_workbook, Workbook
+except ImportError:
+    pass
+
+from xml.etree.ElementTree import Element
+import xml.etree.ElementTree as ET
+import configparser
+import json
+import csv
+
 
 
 class BaseFile(metaclass=ABCMeta):
@@ -108,8 +121,6 @@ class CSVFormat(File):
 
 
     def write(self, data: Iterable[Iterable]) -> None:
-        import csv
-
         # Check format of data
         csv_data = CSVFormat._data_handling(data=data)
         # Write data
@@ -119,8 +130,6 @@ class CSVFormat(File):
 
 
     def read(self, delimiter: str = ",", dialect: str = None) -> Iterable[Iterable]:
-        import csv
-
         csv_data = csv.reader(self._File_IO_Wrapper, delimiter=delimiter, dialect=dialect)
         _data = [_data_row for _data_row in csv_data]
         return _data
@@ -148,8 +157,6 @@ class XLSXFormat(File):
 
 
     def open(self) -> None:
-        from openpyxl import Workbook
-
         self.__WorkBook: Workbook = Workbook()
         self.__Sheet_Page = self.__WorkBook.create_sheet(index=0, title=self.__Sheet_Page_Name)
 
@@ -160,7 +167,13 @@ class XLSXFormat(File):
 
 
     def read(self) -> Iterable[Iterable]:
-        pass
+        _workbook = load_workbook(filename=self.file_path, read_only=True)
+        _sheet_page_data = []
+        for _sheet in _workbook:
+            for _row in _sheet.iter_rows(min_row=_sheet.min_row, max_row=_sheet.max_row, min_col=_sheet.min_column, max_col=_sheet.max_column):
+                _data_row = [_cell.value for _cell in _row]
+                _sheet_page_data.append(_data_row)
+        return _sheet_page_data
 
 
     def close(self) -> None:
@@ -189,7 +202,8 @@ class JSONFormat(File):
 
 
     def read(self) -> Iterable[Iterable]:
-        pass
+        _data = json.load(self.__JSON_IO)
+        return _data
 
 
     def close(self) -> None:
@@ -198,8 +212,6 @@ class JSONFormat(File):
 
     @staticmethod
     def _data_handling(data: List[list]) -> str:
-        import json
-
         json_data = json.dumps(data, ensure_ascii=False, default=str)
         return json_data
 
@@ -207,39 +219,84 @@ class JSONFormat(File):
 
 class XMLFormat(File):
 
+    _File_IO_Wrapper = None
+
     def open(self) -> None:
-        pass
+        self._File_IO_Wrapper = open(file=self.file_path, mode=self.mode)
 
 
     def write(self, data: Iterable[Iterable]) -> None:
-        pass
+        _tasks_ele = ET.Element("tasks")
+        for _data_row in data:
+            _task_ele = ET.SubElement(_tasks_ele, "task")
+
+            _url = ET.SubElement(_task_ele, "url")
+            _url.text = str(_data_row[0])
+
+            _http_method = ET.SubElement(_task_ele, "http-method")
+            _http_method.text = str(_data_row[1])
+
+        _tasks_xml_data = ET.tostring(element=_tasks_ele, encoding=self.encoding)
+        self._File_IO_Wrapper.write(_tasks_xml_data)
 
 
     def read(self, *args, **kwargs) -> Iterable[Iterable]:
-        pass
+        _lines = self._File_IO_Wrapper.readline()
+        _xml_root = ET.fromstringlist(_lines)
+
+        _data = []
+        for child in _xml_root:
+            _data_row = self._parse_task(task=child)
+            _data.append(_data_row)
+
+        return _data
+
+
+    def _parse_task(self, task: Element) -> list:
+        return [_task_content.text for _task_content in task]
 
 
     def close(self) -> None:
-        pass
+        self._File_IO_Wrapper.close()
 
 
 
 class PropertiesFormat(File):
 
+    _File_IO_Wrapper = None
+    __Config_Parser: configparser.ConfigParser = None
+
     def open(self) -> None:
-        pass
+        self._File_IO_Wrapper = open(file=self.file_path, mode=self.mode)
+        self.__Config_Parser = configparser.ConfigParser()
 
 
-    def write(self, data: Iterable[Iterable]) -> None:
-        pass
+    def write(self, data: Iterable[Iterable], sections: Iterable[str] = None) -> None:
+        if sections is None:
+            sections = [f"task_{i}" for i in range(1, len(data) + 1)]
+
+        for _section, _data_row in zip(sections, data):
+            self.__Config_Parser[_section] = {
+                f"{_section}.url": str(_data_row[0]),
+                f"{_section}.http_method": str(_data_row[1])
+            }
+
+        self.__Config_Parser.write(fp=self._File_IO_Wrapper)
 
 
     def read(self, *args, **kwargs) -> Iterable[Iterable]:
-        pass
+        _data = []
+        self.__Config_Parser.read(filenames=self.file_path)
+        _sections = self.__Config_Parser.sections()
+        for _section in _sections:
+            _config_content = list(self.__Config_Parser[_section].values())
+            _data.append(_config_content)
+
+        return _data
 
 
     def close(self) -> None:
-        pass
+        self._File_IO_Wrapper.close()
 
 
 
@@ -259,6 +316,7 @@ class Checking:
         :param data:
         :return:
         """
+
         __checksum = map(cls.__is_data_row, data)
         if False in list(__checksum):
             # raise DataRowFormatIsInvalidError
@@ -275,6 +333,7 @@ class Checking:
         :param data_row:
         :return:
         """
+
         if type(data_row) is list or type(data_row) is tuple:
             return cls.__is_data_content(data_row=data_row)
         else:
@@ -289,6 +348,7 @@ class Checking:
         :param data_row:
         :return:
         """
+
         chk_data_content = map(
             lambda row: False if isinstance(row, List) or isinstance(row, Tuple) else True,
             data_row)
