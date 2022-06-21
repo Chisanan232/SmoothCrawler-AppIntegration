@@ -3,7 +3,7 @@ from appintegration._utils.file.format import (
 )
 
 from ...._data import Test_Data_List, Test_JSON_Data
-from ..._config import (
+from ...._config import (
     # For file paths
     Test_CSV_File_Path,
     Test_XLSX_File_Path,
