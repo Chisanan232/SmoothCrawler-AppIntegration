@@ -2,7 +2,7 @@ from appintegration._utils.file.format import (
     BaseFile, JSONFormat, CSVFormat, XLSXFormat, XMLFormat, PropertiesFormat
 )
 
-from ..._data import Test_Data_List, Test_JSON_Data
+from ...._data import Test_Data_List, Test_JSON_Data
 from ..._config import (
     # For file paths
     Test_CSV_File_Path,

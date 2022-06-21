@@ -12,7 +12,7 @@ from .._config import (
     # For opening mode of file
     Test_Reading_Mode, Test_Writing_Mode, Test_XML_Writing_Mode
 )
-from .._data import Test_Data_List, Test_JSON_Data
+from ..._data import Test_Data_List, Test_JSON_Data
 from ._spec import AppIntegrationTaskTestSpec, _AppIntegrationTaskGeneric
 
 from typing import Union, Iterable, Any, Generic
