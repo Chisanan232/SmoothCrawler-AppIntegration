@@ -60,28 +60,3 @@ class BaseRoleAndTaskTestSpec(metaclass=ABCMeta):
         pass
 
 
-    @pytest.fixture(scope="class")
-    @abstractmethod
-    def role(self, task: Generic[_AppIntegrationTask]) -> Generic[_AppIntegrationTask]:
-        """
-        One of SUTs and it's sub-class of **ApplicationIntegrationRole** here.
-
-        :param task: Another one SUT *task* matches with SUT *role* to do testing.
-        :return: The instance of sub-class of **ApplicationIntegrationRole**.
-        """
-
-        pass
-
-
-    @abstractmethod
-    def test_run_process(self, role: Generic[_AppIntegrationRole]) -> None:
-        """
-        One of SUTs and it's sub-class of **ApplicationIntegrationRole** here.
-
-        :param role:
-        :return: None
-        """
-
-        pass
-
-
