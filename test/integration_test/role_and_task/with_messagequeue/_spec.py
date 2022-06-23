@@ -25,23 +25,48 @@ _Global_Testing_Exception = None
 
 
 def add_msg_cnt() -> int:
+    """
+    Add 1 of counter when it gets one message every times.
+
+    :return: An integer type value which is current counter.
+    """
+
     global MessageQueueCnt
     MessageQueueCnt += 1
     return MessageQueueCnt
 
 
 def add_msg_queue(msg: Union[str, bytes]) -> None:
+    """
+    Add message object it gets into list.
+
+    :param msg: A message object.
+    :return: None
+    """
+
     global MessageQueueBodies
     MessageQueueBodies.append(msg)
 
 
 def _reset_testing_state() -> None:
+    """
+    Reset all the testing states.
+
+    :return: None
+    """
+
     global MessageQueueCnt, MessageQueueBodies
     MessageQueueCnt = 0
     MessageQueueBodies.clear()
 
 
 def _reset_exception() -> None:
+    """
+    Reset the variable saves exception to be None.
+
+    :return: None
+    """
+
     global _Global_Testing_Exception
     _Global_Testing_Exception = None
 
