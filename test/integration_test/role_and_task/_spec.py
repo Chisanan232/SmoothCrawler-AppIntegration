@@ -15,7 +15,6 @@ _MsgQueueTask = TypeVar("_MsgQueueTask", bound=MessageQueueTask)
 
 
 class BaseTestSpecConfig(metaclass=ABCMeta):
-
     """
     This is the configuration for testing items to use. For example, in file based application integration
     case, it needs 2 settings: file path and testing data. So the sub-class of this would add 2 more new
@@ -31,7 +30,6 @@ _BaseTestSpecConfig = TypeVar("_BaseTestSpecConfig", bound=BaseTestSpecConfig)
 
 
 class BaseRoleAndTaskTestSpec(metaclass=ABCMeta):
-
     """
     Testing spec for integration test with 2 modules: *role* and *task*.
     """

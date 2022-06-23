@@ -28,7 +28,6 @@ Run_Result_Data_List = []
 
 
 class FormatTestSpec(metaclass=ABCMeta):
-
     """
     Spec of testing items about module *appintegration._utils.file.format*
     """

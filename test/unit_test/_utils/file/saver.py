@@ -61,7 +61,6 @@ class _SpyFileFormat(File):
 
 
 class SaverTestSpec(metaclass=ABCMeta):
-
     """
     Spec of testing items about module *appintegration._utils.file.saver*
     """
