@@ -114,7 +114,7 @@ class BaseConsumer(MessageQueueRole):
 
     def run_process(self, config: _MessageQueueConfig, poll_args: dict) -> None:
         self._init(config=config)
-        assert type(poll_args) is dict, "The type of option *send_args* should be a dict."
+        assert type(poll_args) is dict, "The type of option *poll_args* should be a dict."
         self._poll(**poll_args)
         self._close()
 
