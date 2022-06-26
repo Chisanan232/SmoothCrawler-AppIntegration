@@ -28,6 +28,7 @@ try:
 except ImportError:
     pass
 
+from ..arguments import ProducerArgument, ConsumerArgument
 from .framework import ApplicationIntegrationSourceTask as _SourceTask, ApplicationIntegrationProcessorTask as _ProcessorTask
 
 
@@ -36,6 +37,18 @@ class MessageQueueConfig(metaclass=ABCMeta):
 
     @abstractmethod
     def generate(self, **kwargs) -> Union[dict, Any]:
+        pass
+
+
+    @classmethod
+    @abstractmethod
+    def send_arguments(cls, **kwargs) -> dict:
+        pass
+
+
+    @classmethod
+    @abstractmethod
+    def poll_arguments(cls, **kwargs) -> dict:
         pass
 
 
@@ -246,6 +259,18 @@ class KafkaConfig(MessageQueueConfig):
         return self._topics
 
 
+    @classmethod
+    def send_arguments(cls, topic: str, value: Union[str, bytes], key: str = bytes(), partition=None, timestamp_ms=None) -> dict:
+        if type(value) is str:
+            value = bytes(value, "utf-8")
+        return ProducerArgument.kafka(topic=topic, value=value, key=key, partition=partition, timestamp_ms=timestamp_ms)
+
+
+    @classmethod
+    def poll_arguments(cls, callback: Callable) -> dict:
+        return ConsumerArgument.kafka(callback=callback)
+
+
 
 class KafkaTask(MessageQueueTask):
 
@@ -342,6 +367,18 @@ class RabbitMQConfig(MessageQueueConfig):
 
     def generate(self, **kwargs) -> ConnectionParameters:
         return ConnectionParameters(**self.Default_RabbitMQ_Config)
+
+
+    @classmethod
+    def send_arguments(cls, exchange: str, routing_key: str, body: Union[str, bytes], default_queue: str = "", properties: BasicProperties = None, mandatory: bool = False) -> dict:
+        if type(body) is str:
+            body = bytes(body, "utf-8")
+        return ProducerArgument.rabbitmq(exchange=exchange, routing_key=routing_key, body=body, default_queue=default_queue, properties=properties, mandatory=mandatory)
+
+
+    @classmethod
+    def poll_arguments(cls, queue: str, callback: Callable, auto_ack: bool = False, exclusive: bool = False, consumer_tag: Any = None, arguments: Any = None) -> dict:
+        return ConsumerArgument.rabbitmq(queue=queue, callback=callback, auto_ack=auto_ack, exclusive=exclusive, consumer_tag=consumer_tag, arguments=arguments)
 
 
 
@@ -443,6 +480,16 @@ class ActiveMQConfig(MessageQueueConfig):
 
     def generate(self, **kwargs) -> dict:
         return self._Default_Config
+
+
+    @classmethod
+    def send_arguments(cls, destination: str, body: str, content_type: str = None, headers: dict = None, **keyword_headers) -> dict:
+        return ProducerArgument.activemq(destination=destination, body=body, content_type=content_type, headers=headers, **keyword_headers)
+
+
+    @classmethod
+    def poll_arguments(cls, destination: str, callback: Callable, id: str = None, ack: str = "auto", headers: dict = None, **keyword_headers) -> dict:
+        return ConsumerArgument.activemq(destination=destination, callback=callback, id=id, ack=ack, headers=headers, **keyword_headers)
 
 
 

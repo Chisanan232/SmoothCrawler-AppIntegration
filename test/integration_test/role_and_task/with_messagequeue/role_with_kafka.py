@@ -1,6 +1,5 @@
 from appintegration.task.messagequeue import MessageQueueConfig, KafkaConfig, KafkaTask
-from appintegration.role.processor import ConsumerArgument
-from appintegration.role.source import ProducerArgument
+from appintegration.arguments import ProducerArgument, ConsumerArgument
 
 from ._spec import (
     # For testing config and its operations
