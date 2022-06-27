@@ -1,3 +1,5 @@
+from appintegration.task.framework import ApplicationIntegrationTask
+from appintegration.role.framework import ApplicationIntegrationRole
 from appintegration.url import ApplicationIntegrationURL
 
 from ..._data import Test_URLs_List
@@ -8,6 +10,8 @@ import traceback
 import pytest
 
 
+_ApplicationIntegrationTask = TypeVar("_ApplicationIntegrationTask", bound=ApplicationIntegrationTask)
+_ApplicationIntegrationRole = TypeVar("_ApplicationIntegrationRole", bound=ApplicationIntegrationRole)
 _ApplicationIntegrationURL = TypeVar("_ApplicationIntegrationURL", bound=ApplicationIntegrationURL)
 
 
@@ -20,6 +24,16 @@ class ApplicationIntegrationURLTestSpec(metaclass=ABCMeta):
 
 
     def test_set_http_info(self) -> None:
+        pass
+
+
+    @abstractmethod
+    def role(self, task: _ApplicationIntegrationTask) -> Generic[_ApplicationIntegrationRole]:
+        pass
+
+
+    @abstractmethod
+    def task(self) -> Generic[_ApplicationIntegrationTask]:
         pass
 
 
@@ -49,3 +63,4 @@ class ApplicationIntegrationURLTestSpec(metaclass=ABCMeta):
     @abstractmethod
     def _chk_generate_running_result(self, url_inst: _ApplicationIntegrationURL) -> None:
         pass
+
