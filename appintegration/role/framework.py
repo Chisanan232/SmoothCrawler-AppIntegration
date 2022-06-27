@@ -84,16 +84,6 @@ class MessageQueueRole(ApplicationIntegrationRole, ABC):
         self._task = cast(_MessageQueueTask, self._task)
 
 
-    # @abstractmethod
-    # def connect(self) -> Any:
-    #     pass
-
-
-    # @abstractmethod
-    # def subscribe(self, topic: str) -> Any:
-    #     pass
-
-
 
 class BaseProducer(MessageQueueRole):
 
@@ -105,7 +95,7 @@ class BaseProducer(MessageQueueRole):
 
 
     @abstractmethod
-    def _send(self, msg: Union[str, list]) -> None:
+    def _send(self, **kwargs) -> None:
         pass
 
 
