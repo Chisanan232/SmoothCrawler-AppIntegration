@@ -301,8 +301,8 @@ class MessageQueueTaskTestSpec:
 
 class TestKafkaConfig(MessageQueueConfigTestSpec):
 
-    def config(self, role: str) -> KafkaConfig:
-        return KafkaConfig(role=role)
+    def config(self, role: str, topics: Union[str, tuple] = "") -> KafkaConfig:
+        return KafkaConfig(role=role, topics=topics)
 
 
     @pytest.mark.parametrize("role", ["producer", "consumer"])
@@ -323,6 +323,30 @@ class TestKafkaConfig(MessageQueueConfigTestSpec):
         assert _config.is_producer() is False, "It should be False because we initial *KafkaConfig* as *consumer*."
 
 
+    def test_topic(self) -> None:
+        _config = self.config(role="consumer", topics=self._topic)
+        _topic = _config.topics()
+        assert _topic is not None and _config.topics() != "", "The topic should NOT be None or empty character."
+        assert _topic == self._topic, "The topic should be same as the testing topic."
+
+
+    def test_topics(self) -> None:
+        _config = self.config(role="consumer", topics=self._topics)
+        _topics = _config.topics()
+        assert _topics is not None and _config.topics() != "", "The topic should NOT be None or empty character."
+        assert _topics == self._topics, "The topic should be same as the testing topics."
+
+
+    @property
+    def _topic(self) -> str:
+        return "test-kafka-topic"
+
+
+    @property
+    def _topics(self) -> tuple:
+        return ("test-topic-1", "test-topic-2", "test-topic-3")
+
+
 
 class TestKafkaTask(MessageQueueTaskTestSpec):
 
@@ -333,7 +357,8 @@ class TestKafkaTask(MessageQueueTaskTestSpec):
 
     @pytest.fixture(scope="class")
     def config_for_consumer(self) -> KafkaConfig:
-        return KafkaConfig(role="consumer")
+        _topics = self._testing_topic
+        return KafkaConfig(role="consumer", topics=_topics)
 
 
     @pytest.fixture(scope="class")
@@ -346,7 +371,7 @@ class TestKafkaTask(MessageQueueTaskTestSpec):
     @pytest.fixture(scope="class")
     def task_for_acquiring(self, config_for_consumer: KafkaConfig) -> KafkaTask:
         _kafka_task = KafkaTask()
-        _kafka_task.init(config=config_for_consumer, topics=self._testing_topic)
+        _kafka_task.init(config=config_for_consumer)
         return _kafka_task
 
 
