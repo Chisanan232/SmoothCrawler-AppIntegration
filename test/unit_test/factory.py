@@ -1,5 +1,6 @@
 from appintegration.role.framework import ApplicationIntegrationRole
 from appintegration.task.framework import ApplicationIntegrationTask
+from appintegration.components import DataHandlerBeforeBack
 from appintegration.factory import ApplicationIntegrationFactory
 
 from smoothcrawler.components.data import T
@@ -38,14 +39,18 @@ class SpyPersistenceFacade(PersistenceFacade):
 
 class SpyAppRole(ApplicationIntegrationRole):
 
-    def init(self, *args, **kwargs) -> Any:
+    def _init(self, *args, **kwargs) -> Any:
         pass
 
     def run_process(self) -> Optional[Any]:
         pass
 
-    def close(self) -> None:
+    def _close(self) -> None:
         pass
+
+
+class SpyDataHandlerBeforeBack(DataHandlerBeforeBack):
+    pass
 
 
 class DummyTask(ApplicationIntegrationTask):
@@ -62,6 +67,7 @@ class FakeHTTPResponseParser: pass
 class FakeDataHandler: pass
 class FakePersistenceFacade: pass
 class FakeAppRole: pass
+class FakeDataHandlerBeforeBack: pass
 
 
 class FactoryTestSpec(metaclass=ABCMeta):
@@ -178,9 +184,9 @@ class FactoryTestSpec(metaclass=ABCMeta):
 
 
     @abstractmethod
-    def test_app_integration_role(self, factory: _ApplicationIntegrationFactory) -> None:
+    def test_app_processor_role(self, factory: _ApplicationIntegrationFactory) -> None:
         """
-        Test for property *app_integration_role* operations (getter and setter).
+        Test for property *app_processor_role* operations (getter and setter).
 
         :param factory: The instance of function *factory* return value in current class.
         :return: None
@@ -190,9 +196,57 @@ class FactoryTestSpec(metaclass=ABCMeta):
 
 
     @abstractmethod
-    def test_set_incorrect_app_integration_role(self, factory: _ApplicationIntegrationFactory) -> None:
+    def test_set_incorrect_app_processor_role(self, factory: _ApplicationIntegrationFactory) -> None:
         """
-        Test for assigning an incorrect type object to property *app_integration_role* (setter).
+        Test for assigning an incorrect type object to property *app_processor_role* (setter).
+
+        :param factory: The instance of function *factory* return value in current class.
+        :return: None
+        """
+
+        pass
+
+
+    @abstractmethod
+    def test_app_source_role(self, factory: _ApplicationIntegrationFactory) -> None:
+        """
+        Test for property *app_source_role* operations (getter and setter).
+
+        :param factory: The instance of function *factory* return value in current class.
+        :return: None
+        """
+
+        pass
+
+
+    @abstractmethod
+    def test_set_incorrect_app_source_role(self, factory: _ApplicationIntegrationFactory) -> None:
+        """
+        Test for assigning an incorrect type object to property *app_source_role* (setter).
+
+        :param factory: The instance of function *factory* return value in current class.
+        :return: None
+        """
+
+        pass
+
+
+    @abstractmethod
+    def test_data_handler_before_back(self, factory: _ApplicationIntegrationFactory) -> None:
+        """
+        Test for property *data_handling_before_back* operations (getter and setter).
+
+        :param factory: The instance of function *factory* return value in current class.
+        :return: None
+        """
+
+        pass
+
+
+    @abstractmethod
+    def test_set_incorrect_data_handler_before_back(self, factory: _ApplicationIntegrationFactory) -> None:
+        """
+        Test for assigning an incorrect type object to property *data_handling_before_back* (setter).
 
         :param factory: The instance of function *factory* return value in current class.
         :return: None
@@ -316,24 +370,68 @@ class TestFactory(FactoryTestSpec):
         FactoryTestSpec._run_setting_incorrect_obj_test(setting_function=_set_persistence_facade)
 
 
-    def test_app_integration_role(self, factory: _ApplicationIntegrationFactory) -> None:
+    def test_app_processor_role(self, factory: _ApplicationIntegrationFactory) -> None:
         _spy_app_role = SpyAppRole(task=DummyTask())
         try:
             # # Test for getting
-            factory.app_integration_role = _spy_app_role
+            factory.app_processor_role = _spy_app_role
             # # Test for setting
-            _app_role = factory.app_integration_role
+            _app_role = factory.app_processor_role
         except Exception:
             assert False, f"It should work finely without any issue.\n The error is: {traceback.format_exc()}"
         else:
             assert _app_role is _spy_app_role, "The instances should be the same."
 
 
-    def test_set_incorrect_app_integration_role(self, factory: _ApplicationIntegrationFactory) -> None:
+    def test_set_incorrect_app_processor_role(self, factory: _ApplicationIntegrationFactory) -> None:
 
         def _set_app_role():
             _fake_app_role = FakeAppRole()
-            factory.app_integration_role = _fake_app_role
+            factory.app_processor_role = _fake_app_role
+
+        FactoryTestSpec._run_setting_incorrect_obj_test(setting_function=_set_app_role)
+
+
+    def test_app_source_role(self, factory: _ApplicationIntegrationFactory) -> None:
+        _spy_app_role = SpyAppRole(task=DummyTask())
+        try:
+            # # Test for getting
+            factory.app_source_role = _spy_app_role
+            # # Test for setting
+            _app_role = factory.app_source_role
+        except Exception:
+            assert False, f"It should work finely without any issue.\n The error is: {traceback.format_exc()}"
+        else:
+            assert _app_role is _spy_app_role, "The instances should be the same."
+
+
+    def test_set_incorrect_app_source_role(self, factory: _ApplicationIntegrationFactory) -> None:
+
+        def _set_app_role():
+            _fake_app_role = FakeAppRole()
+            factory.app_source_role = _fake_app_role
+
+        FactoryTestSpec._run_setting_incorrect_obj_test(setting_function=_set_app_role)
+
+
+    def test_data_handler_before_back(self, factory: _ApplicationIntegrationFactory) -> None:
+        _spy_data_handler = SpyDataHandlerBeforeBack()
+        try:
+            # # Test for getting
+            factory.data_handling_before_back = _spy_data_handler
+            # # Test for setting
+            _data_handler = factory.data_handling_before_back
+        except Exception:
+            assert False, f"It should work finely without any issue.\n The error is: {traceback.format_exc()}"
+        else:
+            assert _data_handler is _spy_data_handler, "The instances should be the same."
+
+
+    def test_set_incorrect_data_handler_before_back(self, factory: _ApplicationIntegrationFactory) -> None:
+
+        def _set_app_role():
+            _fake_app_role = FakeDataHandlerBeforeBack()
+            factory.data_handling_before_back = _fake_app_role
 
         FactoryTestSpec._run_setting_incorrect_obj_test(setting_function=_set_app_role)
 
