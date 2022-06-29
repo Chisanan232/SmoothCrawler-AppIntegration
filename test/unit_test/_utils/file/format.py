@@ -2,8 +2,8 @@ from appintegration._utils.file.format import (
     BaseFile, JSONFormat, CSVFormat, XLSXFormat, XMLFormat, PropertiesFormat
 )
 
-from ..._data import Test_Data_List, Test_JSON_Data
-from ..._config import (
+from ...._data import Test_Data_List, Test_JSON_Data
+from ...._config import (
     # For file paths
     Test_CSV_File_Path,
     Test_XLSX_File_Path,
@@ -28,7 +28,6 @@ Run_Result_Data_List = []
 
 
 class FormatTestSpec(metaclass=ABCMeta):
-
     """
     Spec of testing items about module *appintegration._utils.file.format*
     """

@@ -65,7 +65,6 @@ class FakeAppRole: pass
 
 
 class FactoryTestSpec(metaclass=ABCMeta):
-
     """
     Spec of testing items about module *appintegration.factory*
     """
