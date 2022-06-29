@@ -29,5 +29,5 @@ class DummyObj:
 
 
 Test_HTTP_Parameters = {"date": "20220625", "code": "6666"}
-Test_HTTP_Body = DummyObj()
+Test_HTTP_Body = str(DummyObj())
 Test_HTTP_Content_Type = "application/json"
