@@ -10,7 +10,7 @@ import pytest
 
 
 
-class XLSXFileBasedTestSpecConfig(FileBasedTestSpecConfig):
+class XMLFileBasedTestSpecConfig(FileBasedTestSpecConfig):
 
     def file_path(self) -> str:
         return Test_XML_File_Path
@@ -21,11 +21,11 @@ class XLSXFileBasedTestSpecConfig(FileBasedTestSpecConfig):
 
 
 
-class TestCrawlerSourceWithXLSXTask(SourceWithFileBasedTestSpec):
+class TestCrawlerSourceWithXMLTask(SourceWithFileBasedTestSpec):
 
     @property
     def spec_config(self) -> FileBasedTestSpecConfig:
-        return XLSXFileBasedTestSpecConfig()
+        return XMLFileBasedTestSpecConfig()
 
 
     @pytest.fixture(scope="class")
@@ -35,11 +35,11 @@ class TestCrawlerSourceWithXLSXTask(SourceWithFileBasedTestSpec):
 
 
 
-class TestCrawlerProcessorWithXLSXTask(ProcessorWithFileBasedTestSpec):
+class TestCrawlerProcessorWithXMLTask(ProcessorWithFileBasedTestSpec):
 
     @property
     def spec_config(self) -> FileBasedTestSpecConfig:
-        return XLSXFileBasedTestSpecConfig()
+        return XMLFileBasedTestSpecConfig()
 
 
     @pytest.fixture(scope="class")
