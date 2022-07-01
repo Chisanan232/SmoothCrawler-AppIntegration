@@ -6,10 +6,13 @@ from smoothcrawler.components.data import (
     BaseAsyncDataHandler as _BaseAsyncDataHandler
 )
 from smoothcrawler.crawler import BaseCrawler
-from typing import List, Dict, Iterable, Any, Union, Optional, Generic, cast
+from typing import List, Dict, Iterable, Callable, Generator, Any, Union, Optional, Generic, cast
 from abc import ABC, abstractmethod
+import json
+import time
 
 from .task.messagequeue import MessageQueueConfig as _MessageQueueConfig
+from .role.framework import BaseConsumer as _BaseConsumer
 from .factory import ApplicationIntegrationFactory as _ApplicationIntegrationFactory
 from .types import BaseRole as _BaseRole
 
@@ -51,7 +54,7 @@ class BaseApplicationIntegrationCrawler(BaseCrawler):
 
 
     @abstractmethod
-    def get_target(self, **kwargs) -> dict:
+    def _run_process_with_target(self, **kwargs) -> None:
         pass
 
 
@@ -89,20 +92,35 @@ class BaseApplicationIntegrationCrawler(BaseCrawler):
 
 class AppIntegrationCrawler(BaseApplicationIntegrationCrawler, ABC):
 
-    def run(self, **kwargs) -> Optional[Any]:
+    def run(self, **kwargs) -> List[Any]:
+
+        def _run_process(_target: dict) -> Optional[Any]:
+            _kwargs = self.data_parameters(data=_target)
+            _parsed_response = self.crawl(**_kwargs)
+            _data = self.data_process(parsed_response=_parsed_response)
+            return _data
+
         _target = kwargs.get("target")
-        _kwargs = self.data_parameters(data=_target)
-        _parsed_response = self.crawl(**_kwargs)
-        _data = self.data_process(parsed_response=_parsed_response)
-        return _data
+        _run_result = None
+
+        if type(_target) is dict:
+            _run_result = [_run_process(_target=_target)]
+        elif type(_target) is list:
+            _run_result = [_run_process(_target=_target_row) for _target_row in _target]
+        else:
+            raise TypeError("Option *target* only accept dict or list type data.")
+
+        return _run_result
 
 
+    @abstractmethod
     def run_and_save(self, **kwargs) -> None:
         _target = kwargs.get("target")
         _data = self.run(target=_target)
         self.persist(data=_data)
 
 
+    @abstractmethod
     def run_and_back_to_middle(self, **kwargs) -> None:
         """
         Run the crawling task and write or send, etc back to the middle component like file,
@@ -119,14 +137,64 @@ class AppIntegrationCrawler(BaseApplicationIntegrationCrawler, ABC):
 
 class FileBasedCrawler(AppIntegrationCrawler):
 
-    def get_target(self, **kwargs) -> Dict:
+    def _run_process_with_target(self, callback: Callable, scrape_time: int = 10, limit_time: int = -1, limit_get_target_time: int = -1) -> Generator:
         # # Working procedure
         # 1. Keep listening the targets (it maybe files, database, connection like TCP, message queue middle system).
         # 2. If it get anything it would run the task with the data.
         # # By the way, it should has some different scenarios like just check once or keep checking it
         # # again and again until timeout time or others you set.
-        _data = self._factory.app_processor_role.run_process()
-        return _data
+
+        if limit_time < 0 and limit_time != -1:
+            raise ValueError
+        if limit_get_target_time < 0 and limit_get_target_time != -1:
+            raise ValueError
+
+        _current_time = 0
+        _get_target_time = 0
+
+        while True:
+            _current_time += 1
+
+            try:
+                _data = self._factory.app_processor_role.run_process()
+            except FileNotFoundError:
+                pass
+            else:
+                _get_target_time += 1
+                yield callback(target=_data)
+
+            # If both of options *limit_time* and *limit_get_target_time* have been set, it would use option *limit_get_target_time*.
+            if limit_get_target_time != -1:
+                if 0 <= limit_get_target_time <= _get_target_time:
+                    break
+            else:
+                if 0 <= limit_time <= _current_time:
+                    break
+
+            time.sleep(scrape_time)
+
+
+    def run(self, scrape_time: int = 10, limit_time: int = -1, limit_get_target_time: int = -1) -> Generator:
+        return self._run_process_with_target(
+            callback=super(FileBasedCrawler, self).run,
+            scrape_time=scrape_time,
+            limit_time=limit_time,
+            limit_get_target_time=limit_get_target_time
+        )
+
+
+    def run_and_save(self, scrape_time: int = 10, limit_time: int = -1, limit_get_target_time: int = -1) -> None:
+        _running_results = self.run(scrape_time=scrape_time, limit_time=limit_time, limit_get_target_time=limit_get_target_time)
+        for _results in _running_results:
+            for _result_row in _results:
+                self.persist(data=_result_row)
+
+
+    def run_and_back_to_middle(self, scrape_time: int = 10, limit_time: int = -1, limit_get_target_time: int = -1) -> None:
+        _running_results = self.run(scrape_time=scrape_time, limit_time=limit_time, limit_get_target_time=limit_get_target_time)
+        for _results in _running_results:
+            for _result_row in _results:
+                self.send_to_app_integration_middle_component(data=_result_row)
 
 
     def data_parameters(self, data: list) -> Dict[str, Any]:
@@ -147,7 +215,7 @@ class FileBasedCrawler(AppIntegrationCrawler):
 
 class MessageQueueCrawler(AppIntegrationCrawler):
 
-    def get_target(self, config: _MessageQueueConfig, poll_args: dict) -> None:
+    def _run_process_with_target(self, config: _MessageQueueConfig, poll_args: dict) -> None:
         # # Working procedure
         # 1. Keep listening the targets (it maybe files, database, connection like TCP, message queue middle system).
         # 2. If it get anything it would run the task with the data.
@@ -156,22 +224,36 @@ class MessageQueueCrawler(AppIntegrationCrawler):
         self._factory.app_processor_role.run_process(config=config, poll_args=poll_args)
 
 
-    def run(self, targets: dict, config: _MessageQueueConfig, poll_args: dict) -> None:
-        poll_args["callback"] = super(MessageQueueCrawler, self).run
-        self.get_target(config=config, poll_args=poll_args)
+    def run(self, config: _MessageQueueConfig, poll_args: dict) -> None:
+        _run_callback = self._format_callback(callback=super(MessageQueueCrawler, self).run)
+        poll_args["callback"] = _run_callback
+        self._run_process_with_target(config=config, poll_args=poll_args)
 
 
-    def run_and_save(self, targets: dict, config: _MessageQueueConfig, poll_args: dict) -> None:
-        poll_args["callback"] = super(MessageQueueCrawler, self).run_and_save
-        self.get_target(config=config, poll_args=poll_args)
+    def run_and_save(self, config: _MessageQueueConfig, poll_args: dict) -> None:
+        _run_callback = self._format_callback(callback=super(MessageQueueCrawler, self).run_and_save)
+        poll_args["callback"] = _run_callback
+        self._run_process_with_target(config=config, poll_args=poll_args)
 
 
-    def run_and_back_to_middle(self, targets: dict, config: _MessageQueueConfig, poll_args: dict) -> None:
-        poll_args["callback"] = super(MessageQueueCrawler, self).run_and_back_to_middle
-        self.get_target(config=config, poll_args=poll_args)
+    def run_and_back_to_middle(self, config: _MessageQueueConfig, poll_args: dict) -> None:
+        _run_callback = self._format_callback(callback=super(MessageQueueCrawler, self).run_and_back_to_middle)
+        poll_args["callback"] = _run_callback
+        self._run_process_with_target(config=config, poll_args=poll_args)
+
+
+    def _format_callback(self, callback: Callable) -> Callable:
+        _role = cast(_BaseConsumer, self._factory.app_processor_role)
+        _run_callback = _role.format_callback(callback=callback)
+        return _run_callback
 
 
     def send_to_app_integration_middle_component(self, data: Iterable) -> None:
         print(f"[DEBUG] get data: {data} and it would send it back to application integration system.")
         pass
+
+
+    def data_parameters(self, data: str) -> Dict[str, Any]:
+        _json_data = json.loads(data)
+        return
 
