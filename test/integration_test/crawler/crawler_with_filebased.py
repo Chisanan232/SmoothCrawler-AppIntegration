@@ -28,6 +28,12 @@ import os
 
 _FileBasedTask = TypeVar("_FileBasedTask", bound=FileBasedTask)
 
+# Settings for testing
+_Scrape_Time: int = 1
+_Limit_Time: int = 3
+_Limit_Get_Target_Time: int = 3
+_Test_Crawler_Limit_Get_Target_Time: int = 1
+
 
 class FileBasedCrawlerTestSpec(CrawlerTestSpec):
 
@@ -115,13 +121,50 @@ class FileBasedCrawlerTestSpec(CrawlerTestSpec):
         return FileBasedCrawler(factory=factory)
 
 
-    def _chk_result_of_getting_targets(self, _targets: Iterable) -> None:
+    def test_run_process_with_target(self, crawler: FileBasedCrawler) -> None:
+
+        def _callback(target: Iterable) -> Iterable:
+            return target
+
+        self._prepare_target_data()
+
+        try:
+            _get_target_time = 0
+            _targets = crawler._run_process_with_target(callback=_callback, scrape_time=_Scrape_Time, limit_get_target_time=_Limit_Get_Target_Time)
+            _start = time.time()
+            for _target_row in _targets:
+                self._chk_result_of_running_process_with_target(_targets=_target_row)
+                _get_target_time += 1
+            _end = time.time()
+            assert _get_target_time == _Limit_Get_Target_Time, "It should run to get target data 3 times."
+            assert _Scrape_Time * (_Limit_Get_Target_Time - 1) <= int(_end - _start) <= (_Scrape_Time + 1) * _Limit_Get_Target_Time, \
+                f"Its running time should be between {_Scrape_Time * (_Limit_Get_Target_Time - 1)} - {(_Scrape_Time + 1) * _Limit_Get_Target_Time} seconds. But it took {_end - _start} seconds."
+        finally:
+            self._final_process()
+
+
+    def _chk_result_of_running_process_with_target(self, _targets: Iterable) -> None:
         assert type(_targets) is list, "It should be an iterable object."
         _chk_ele_is_list = map(lambda a: True if type(a) is list else False, _targets)
         if False in list(_chk_ele_is_list):
             assert False, "It should NOT have any element which type is not list."
         else:
             assert True, "It works finely."
+
+
+    def test_run(self, crawler: FileBasedCrawler) -> None:
+        self._prepare_target_data()
+
+        try:
+            _results = crawler.run(limit_get_target_time=_Test_Crawler_Limit_Get_Target_Time)
+            _all_results = []
+            for _result_row in _results:
+                _all_results.append(_result_row)
+                self._chk_result_of_running(_results=_result_row)
+
+            assert len(_all_results) == _Test_Crawler_Limit_Get_Target_Time, f"It should only run {_Test_Crawler_Limit_Get_Target_Time} time."
+        finally:
+            self._final_process()
 
 
     def _chk_result_of_running(self, _results: Iterable) -> None:
@@ -137,6 +180,18 @@ class FileBasedCrawlerTestSpec(CrawlerTestSpec):
                 assert len(_data_rows) == 9, "It should have something data."
 
 
+    def test_run_and_save(self, crawler: FileBasedCrawler) -> None:
+        self._prepare_target_data()
+
+        try:
+            crawler.run_and_save(limit_get_target_time=_Test_Crawler_Limit_Get_Target_Time)
+
+            _factory = crawler.factory
+            self._chk_result_of_running_and_saving(_factory=_factory)
+        finally:
+            self._final_process()
+
+
     def _chk_result_of_running_and_saving(self, _factory) -> None:
         _persistence_layer = cast(DataFilePersistenceLayer, _factory.persistence_factory)
         _exist = os.path.exists(_persistence_layer.file_path)
@@ -148,9 +203,7 @@ class FileBasedCrawlerTestSpec(CrawlerTestSpec):
         self._prepare_target_data()
 
         try:
-            _targets = crawler.get_target()
-            for _target in _targets:
-                crawler.run_and_back_to_middle(target=_target)
+            crawler.run_and_back_to_middle(limit_get_target_time=_Test_Crawler_Limit_Get_Target_Time)
 
             _factory = crawler.factory
             self._chk_result_of_running_and_backing_to_middle()
