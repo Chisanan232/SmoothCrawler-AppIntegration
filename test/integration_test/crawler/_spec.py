@@ -89,7 +89,8 @@ class CrawlerTestSpec(metaclass=ABCMeta):
         pass
 
 
-    def test_get_targets(self, crawler: _AppIntegrationCrawler) -> None:
+    @abstractmethod
+    def test_run_process_with_target(self, crawler: Generic[_AppIntegrationCrawler]) -> None:
         """
         Test for getting targets for crawler to run with it.
 
@@ -97,18 +98,11 @@ class CrawlerTestSpec(metaclass=ABCMeta):
         :return: None
         """
 
-        self._prepare_target_data()
-
-        try:
-            _targets = crawler.get_target()
-
-            self._chk_result_of_getting_targets(_targets=_targets)
-        finally:
-            self._final_process()
+        pass
 
 
     @abstractmethod
-    def _chk_result_of_getting_targets(self, _targets: Iterable) -> None:
+    def _chk_result_of_running_process_with_target(self, _targets: Iterable) -> None:
         """
         Checking the running result of getting targets.
 
@@ -119,7 +113,8 @@ class CrawlerTestSpec(metaclass=ABCMeta):
         pass
 
 
-    def test_run(self, crawler: _AppIntegrationCrawler) -> None:
+    @abstractmethod
+    def test_run(self, crawler: Generic[_AppIntegrationCrawler]) -> None:
         """
         Test for running crawler generally and get the result.
 
@@ -127,18 +122,7 @@ class CrawlerTestSpec(metaclass=ABCMeta):
         :return: None
         """
 
-        self._prepare_target_data()
-
-        try:
-            _targets = crawler.get_target()
-            _results = []
-            for _target in _targets:
-                _result = crawler.run(target=_target)
-                _results.append(_result)
-
-            self._chk_result_of_running(_results=_results)
-        finally:
-            self._final_process()
+        pass
 
 
     @abstractmethod
@@ -153,7 +137,8 @@ class CrawlerTestSpec(metaclass=ABCMeta):
         pass
 
 
-    def test_run_and_save(self, crawler: _AppIntegrationCrawler) -> None:
+    @abstractmethod
+    def test_run_and_save(self, crawler: Generic[_AppIntegrationCrawler]) -> None:
         """
         Test for running crawler and save the result data.
 
@@ -161,17 +146,7 @@ class CrawlerTestSpec(metaclass=ABCMeta):
         :return:
         """
 
-        self._prepare_target_data()
-
-        try:
-            _targets = crawler.get_target()
-            for _target in _targets:
-                crawler.run_and_save(target=_target)
-
-            _factory = crawler.factory
-            self._chk_result_of_running_and_saving(_factory=_factory)
-        finally:
-            self._final_process()
+        pass
 
 
     @abstractmethod
@@ -186,7 +161,8 @@ class CrawlerTestSpec(metaclass=ABCMeta):
         pass
 
 
-    def test_run_and_back_to_middle(self, crawler: _AppIntegrationCrawler) -> None:
+    @abstractmethod
+    def test_run_and_back_to_middle(self, crawler: Generic[_AppIntegrationCrawler]) -> None:
         """
         Test for running crawler and let the result data back to application integration middle system.
 
@@ -194,17 +170,7 @@ class CrawlerTestSpec(metaclass=ABCMeta):
         :return:
         """
 
-        self._prepare_target_data()
-
-        try:
-            _targets = crawler.get_target()
-            for _target in _targets:
-                crawler.run_and_back_to_middle(target=_target)
-
-            _factory = crawler.factory
-            self._chk_result_of_running_and_backing_to_middle()
-        finally:
-            self._final_process()
+        pass
 
 
     @abstractmethod
