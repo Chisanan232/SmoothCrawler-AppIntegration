@@ -1,10 +1,10 @@
 from typing import Iterable, Any
 
 from ..task.messagequeue import MessageQueueConfig as _MessageQueueConfig
-from .framework import BaseSource, BaseProducer
+from .framework import BaseSource as _BaseSource, BaseProducer as _BaseProducer
 
 
-class CrawlerSource(BaseSource):
+class CrawlerSource(_BaseSource):
 
     def _init(self, *args, **kwargs) -> Any:
         self._task.init()
@@ -19,7 +19,7 @@ class CrawlerSource(BaseSource):
 
 
 
-class CrawlerProducer(BaseProducer):
+class CrawlerProducer(_BaseProducer):
 
     def _init(self, config: _MessageQueueConfig, **kwargs) -> None:
         self._task.init(config=config)
