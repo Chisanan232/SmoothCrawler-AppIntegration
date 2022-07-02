@@ -102,7 +102,7 @@ class CrawlerTestSpec(metaclass=ABCMeta):
 
 
     @abstractmethod
-    def _chk_result_of_running_process_with_target(self, _targets: Iterable) -> None:
+    def _chk_result_of_running_process_with_target(self, **kwargs) -> None:
         """
         Checking the running result of getting targets.
 
@@ -177,17 +177,6 @@ class CrawlerTestSpec(metaclass=ABCMeta):
     def _chk_result_of_running_and_backing_to_middle(self) -> None:
         """
         Check the running result of crawler running and let result data back to application integration middle system.
-
-        :return: None
-        """
-
-        pass
-
-
-    @abstractmethod
-    def _prepare_target_data(self) -> None:
-        """
-        Prepare the targets before run the testing of crawler.
 
         :return: None
         """
