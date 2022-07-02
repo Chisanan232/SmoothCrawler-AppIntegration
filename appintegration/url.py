@@ -218,7 +218,6 @@ class MessageQueueURLProducer(ApplicationIntegrationURL):
         _all_api_info = []
         for _url in urls:
             self._http_info.url = _url
-            print(f"[DEBUG] self._http_info.info: {self._http_info.info}")
             _json_data = json.dumps(self._http_info.info)
             _all_api_info.append(_json_data)
         return _all_api_info
