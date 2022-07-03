@@ -185,6 +185,17 @@ class CrawlerTestSpec(metaclass=ABCMeta):
 
 
     @abstractmethod
+    def _prepare_target_data(self) -> None:
+        """
+        Prepare the data for testing running.
+
+        :return: None
+        """
+
+        pass
+
+
+    @abstractmethod
     def _final_process(self) -> None:
         """
         Do something finally in testing process.
