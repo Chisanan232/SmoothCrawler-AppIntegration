@@ -109,6 +109,11 @@ class MessageQueueTask(_SourceTask, _ProcessorTask):
         pass
 
 
+    @abstractmethod
+    def generate_poll_callable(self, callback: Callable) -> Callable:
+        pass
+
+
     @staticmethod
     def _chk_config(__config: object, __class: Any):
         if __config is not None and isinstance(__config, __class) is False:
@@ -300,6 +305,22 @@ class KafkaTask(MessageQueueTask):
             callback(msg=_msg)
 
 
+    def generate_poll_callable(self, callback: Callable) -> Callable:
+        """
+        Below is an example how it gets message from Kafka:
+
+            ConsumerRecord(topic='test-kafka-topic', partition=0, offset=91, timestamp=1656752880320, timestamp_type=0, key=b'', value=b'{"http_method": "GET", "url": "https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=20220602&stockNo=2330", "parameters": {}, "body": null, "content_type": null}', headers=[], checksum=None, serialized_key_size=0, serialized_value_size=176, serialized_header_size=-1)
+
+        :param callback:
+        :return:
+        """
+
+        def _kafka_callback(msg) -> Any:
+            return callback(target=msg.value)
+
+        return _kafka_callback
+
+
     def close(self) -> None:
         pass
 
@@ -388,8 +409,6 @@ class RabbitMQTask(MessageQueueTask):
     _Connection = None
     _Channel = None
 
-    _Declare_Flag: bool = False
-
     def init(self, config: RabbitMQConfig) -> Any:
         MessageQueueTask._chk_config(config, RabbitMQConfig)
         self._Config = config.generate()
@@ -402,22 +421,33 @@ class RabbitMQTask(MessageQueueTask):
         # Only for RabbitMQ
         # Define a message queue in RabbitMQ
         self._Channel.queue_declare(queue=queue, passive=passive, durable=durable, exclusive=exclusive, auto_delete=auto_delete, arguments=arguments)
-        self._Declare_Flag = True
+
+
+    def _bind_queue(self, queue: str, exchange: str, routing_key: str = None, arguments: dict = None) -> None:
+        self._Channel.queue_bind(queue=queue, exchange=exchange, routing_key=routing_key, arguments=arguments)
 
 
     def send(self, exchange: str, routing_key: str, body: bytes, default_queue: str = "", properties: BasicProperties = None, mandatory: bool = False) -> None:
-        if self._Declare_Flag is False:
-            self._declare_queue(queue=default_queue)
+        self._declare_queue(queue=default_queue)
+        # self._bind_queue(queue=default_queue, exchange=exchange, routing_key=routing_key)
 
         self._Channel.basic_publish(exchange=exchange, routing_key=routing_key, body=body, properties=properties, mandatory=mandatory)
 
 
     def poll(self, queue: str, callback: Callable, auto_ack: bool = False, exclusive: bool = False, consumer_tag: Any = None, arguments: Any = None) -> None:
-        if self._Declare_Flag is False:
-            self._declare_queue(queue=queue)
+        self._declare_queue(queue=queue)
+        # self._bind_queue(queue=queue, exchange="")
 
         self._Channel.basic_consume(queue=queue, on_message_callback=callback, auto_ack=auto_ack, exclusive=exclusive, consumer_tag=consumer_tag, arguments=arguments)
         self._Channel.start_consuming()
+
+
+    def generate_poll_callable(self, callback: Callable) -> Callable:
+
+        def _rabbitmq_callback(ch, method, properties, body) -> Any:
+            return callback(target=body)
+
+        return _rabbitmq_callback
 
 
     def close(self) -> None:
@@ -522,6 +552,28 @@ class ActiveMQTask(MessageQueueTask):
 
         while True:
             time.sleep(5)
+
+
+    def generate_poll_callable(self, callback: Callable) -> Callable:
+
+        def _activemq_callback(frame) -> Any:
+            """
+            An example frame would like below:
+
+                {cmd=MESSAGE,headers=[{'content-length': '33', 'expires': '0', 'destination': '/queue/TestQueue', 'priority': '4', 'message-id': 'ID:fd77ea946402-32863-1655607094846-3:190:-1:1:10', 'timestamp': '1656644243261'}],body=This is testing message for time.}
+
+            It has 3 attributes:
+
+                * cmd: command
+                * headers: The header info of activemq
+                * body: message body.
+
+            :param frame: A frame object.
+            :return:
+            """
+            return callback(target=frame.body)
+
+        return _activemq_callback
 
 
     def close(self) -> None:
