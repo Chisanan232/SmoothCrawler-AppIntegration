@@ -1,4 +1,4 @@
-from typing import Iterable, Any, Union, Optional, TypeVar, Generic, cast
+from typing import Iterable, Callable, Any, Optional, TypeVar, Generic, cast
 from abc import ABCMeta, ABC, abstractmethod
 
 from ..task.messagequeue import MessageQueueConfig as _MessageQueueConfig, MessageQueueTask as _MessageQueueTask
@@ -112,4 +112,8 @@ class BaseConsumer(MessageQueueRole):
     @abstractmethod
     def _poll(self, **kwargs) -> Any:
         pass
+
+
+    def format_callback(self, callback: Callable) -> Callable:
+        return self._task.generate_poll_callable(callback=callback)
 
