@@ -12,7 +12,7 @@ import json
 import time
 
 from .task.messagequeue import MessageQueueConfig as _MessageQueueConfig
-from .role.framework import BaseConsumer as _BaseConsumer
+from .role.framework import BaseProducer as _BaseProducer, BaseConsumer as _BaseConsumer
 from .factory import ApplicationIntegrationFactory as _ApplicationIntegrationFactory
 from .types import BaseRole as _BaseRole
 
@@ -85,7 +85,7 @@ class BaseApplicationIntegrationCrawler(BaseCrawler):
 
 
     @abstractmethod
-    def send_to_app_integration_middle_component(self, data: Iterable) -> None:
+    def send_to_app_integration_middle_component(self, **kwargs) -> None:
         pass
 
 
@@ -107,6 +107,13 @@ class AppIntegrationCrawler(BaseApplicationIntegrationCrawler, ABC):
             _run_result = [_run_process(_target=_target)]
         elif type(_target) is list:
             _run_result = [_run_process(_target=_target_row) for _target_row in _target]
+        elif type(_target) is str:
+            _json_target = json.loads(_target)
+            _run_result = [_run_process(_target=_json_target)]
+        elif type(_target) is bytes:
+            _decoded_target = _target.decode("utf-8")
+            _json_target = json.loads(_decoded_target)
+            _run_result = [_run_process(_target=_json_target)]
         else:
             raise TypeError("Option *target* only accept dict or list type data.")
 
@@ -215,31 +222,51 @@ class FileBasedCrawler(AppIntegrationCrawler):
 
 class MessageQueueCrawler(AppIntegrationCrawler):
 
+    _Running_Result: list = []
+
     def _run_process_with_target(self, config: _MessageQueueConfig, poll_args: dict) -> None:
-        # # Working procedure
-        # 1. Keep listening the targets (it maybe files, database, connection like TCP, message queue middle system).
-        # 2. If it get anything it would run the task with the data.
-        # # By the way, it should has some different scenarios like just check once or keep checking it
-        # # again and again until timeout time or others you set.
         self._factory.app_processor_role.run_process(config=config, poll_args=poll_args)
 
 
     def run(self, config: _MessageQueueConfig, poll_args: dict) -> None:
-        _run_callback = self._format_callback(callback=super(MessageQueueCrawler, self).run)
+
+        def _run_process(target):
+            _data = super(MessageQueueCrawler, self).run(target=target)
+            self._Running_Result.append(_data)
+
+        _run_callback = self._format_callback(callback=_run_process)
         poll_args["callback"] = _run_callback
         self._run_process_with_target(config=config, poll_args=poll_args)
+
+
+    def run_result(self) -> list:
+        return self._Running_Result
 
 
     def run_and_save(self, config: _MessageQueueConfig, poll_args: dict) -> None:
-        _run_callback = self._format_callback(callback=super(MessageQueueCrawler, self).run_and_save)
+
+        def _run_and_save_process(target):
+            _data = super(MessageQueueCrawler, self).run(target=target)
+            for _data_row in _data:
+                self.persist(data=_data_row)
+
+        _run_callback = self._format_callback(callback=_run_and_save_process)
         poll_args["callback"] = _run_callback
         self._run_process_with_target(config=config, poll_args=poll_args)
 
 
-    def run_and_back_to_middle(self, config: _MessageQueueConfig, poll_args: dict) -> None:
-        _run_callback = self._format_callback(callback=super(MessageQueueCrawler, self).run_and_back_to_middle)
+    def run_and_back_to_middle(self,
+                               processor_config: _MessageQueueConfig, poll_args: dict,
+                               back_config: _MessageQueueConfig, send_args: dict) -> None:
+
+        def _run_and_back_function(target) -> None:
+            _data = super(MessageQueueCrawler, self).run(target=target)
+            for _data_row in _data:
+                self.send_to_app_integration_middle_component(config=back_config, send_args=send_args, data=_data_row)
+
+        _run_callback = self._format_callback(callback=_run_and_back_function)
         poll_args["callback"] = _run_callback
-        self._run_process_with_target(config=config, poll_args=poll_args)
+        self._run_process_with_target(config=processor_config, poll_args=poll_args)
 
 
     def _format_callback(self, callback: Callable) -> Callable:
@@ -248,12 +275,38 @@ class MessageQueueCrawler(AppIntegrationCrawler):
         return _run_callback
 
 
-    def send_to_app_integration_middle_component(self, data: Iterable) -> None:
-        print(f"[DEBUG] get data: {data} and it would send it back to application integration system.")
-        pass
+    def send_to_app_integration_middle_component(self, config: _MessageQueueConfig, send_args: dict, data: Iterable) -> None:
+        _data = self._factory.data_handling_before_back.process(data=data)
+        _source_role = cast(_BaseProducer, self._factory.app_source_role)
+
+        _send_args = self._set_message(send_args=send_args, msg=str(_data), producer_config=config)
+        _source_role.run_process(config=config, send_args=_send_args)
 
 
-    def data_parameters(self, data: str) -> Dict[str, Any]:
-        _json_data = json.loads(data)
-        return
+    def data_parameters(self, data: dict) -> Dict[str, Any]:
+        _method = data["http_method"]
+        _url = data["url"]
+        _kwargs = {
+            "method": _method,
+            "url": _url
+        }
+        return _kwargs
+
+
+    def _set_message(self, send_args: dict, msg: str, producer_config: _MessageQueueConfig) -> dict:
+        _sending_arguments = {}
+        _send_keys = send_args.keys()
+
+        if "value" in _send_keys:
+            # For Kafka
+            send_args["value"] = msg
+            _sending_arguments = producer_config.send_arguments(**send_args)
+        elif "body" in _send_keys:
+            # For RabbitMQ, ActiveMQ
+            send_args["body"] = msg
+            _sending_arguments = producer_config.send_arguments(**send_args)
+        else:
+            raise ValueError(f"The parameters are incorrect. Current parameters are: {send_args}")
+
+        return _sending_arguments
 
