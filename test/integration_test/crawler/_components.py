@@ -19,7 +19,8 @@ class RequestsHTTPRequest(HTTP):
     __Http_Response = None
 
     def get(self, url: str, *args, **kwargs):
-        self.__Http_Response = requests.get(url)
+        if self.__Http_Response is None:
+            self.__Http_Response = requests.get(url)
         return self.__Http_Response
 
 
