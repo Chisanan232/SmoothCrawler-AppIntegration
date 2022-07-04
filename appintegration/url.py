@@ -12,7 +12,6 @@ import re
 
 from .task.messagequeue import MessageQueueConfig as _MessageQueueConfig
 from .role.framework import ApplicationIntegrationRole as _ApplicationIntegrationRole
-from .role.source import CrawlerSource, CrawlerProducer
 
 
 OPTION_VAR_INDEX = OPTION_VAR_INDEX
