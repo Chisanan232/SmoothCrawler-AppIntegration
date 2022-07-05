@@ -441,6 +441,11 @@ class TestMessageQueueCrawlerWithRabbitMQ(MessageQueueCrawlerTestSpec):
 
 
     @pytest.mark.xfail(reason="It would has problem if run with other testing items.")
+    def test_run_process_with_target(self, crawler: MessageQueueCrawler) -> None:
+        super(TestMessageQueueCrawlerWithRabbitMQ, self).test_run_process_with_target(crawler=crawler)
+
+
+    @pytest.mark.xfail(reason="It would has problem if run with other testing items.")
     def test_run_and_back_to_middle(self, crawler: MessageQueueCrawler) -> None:
         super(TestMessageQueueCrawlerWithRabbitMQ, self).test_run_and_back_to_middle(crawler=crawler)
 
