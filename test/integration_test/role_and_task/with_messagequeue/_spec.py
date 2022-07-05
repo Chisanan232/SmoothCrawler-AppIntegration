@@ -239,6 +239,8 @@ class RoleWithMessageQueueTaskTestSpec(BaseRoleAndTaskTestSpec):
         _consumer_thread.daemon = True
 
         _consumer_thread.start()
+        # Wait for consumer thread has been ready
+        time.sleep(self._wait_consumer_seconds)
         _producer_thread.start()
 
         _producer_thread.join()
@@ -341,6 +343,11 @@ class RoleWithMessageQueueTaskTestSpec(BaseRoleAndTaskTestSpec):
 
         assert len(MessageQueueBodies) == TestingMessageCnt - 1, f"The length of list which saves messages should be {TestingMessageCnt - 1}"
         assert MessageQueueCnt == TestingMessageCnt - 1, f"The counter of consuming messages should be {TestingMessageCnt - 1}"
+
+
+    @property
+    def _wait_consumer_seconds(self):
+        return 3
 
 
     def _final_process(self) -> None:
