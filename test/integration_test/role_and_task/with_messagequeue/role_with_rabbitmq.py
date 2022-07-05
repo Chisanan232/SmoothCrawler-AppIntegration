@@ -19,7 +19,7 @@ _MsgQueueConfig = TypeVar("_MsgQueueConfig", bound=MessageQueueConfig)
 class RabbitMQTestSpecConfig(MsgQueueTestSpecConfig):
 
     def topic(self) -> str:
-        return "pytest-rabbit"
+        return "test-rabbit"
 
 
     def data(self) -> Union[Iterable[Iterable], Any]:
@@ -46,7 +46,7 @@ class TestRoleWithRabbitMQTask(RoleWithMessageQueueTaskTestSpec):
 
     def _sending_argument(self, msg: Union[str, bytes]) -> dict:
         _topic = self.topic
-        return ProducerArgument.rabbitmq(exchange="", routing_key=_topic, body=msg)
+        return ProducerArgument.rabbitmq(exchange="", routing_key=_topic, body=msg, default_queue=_topic)
 
 
     def _receive_argument(self) -> dict:
@@ -59,8 +59,8 @@ class TestRoleWithRabbitMQTask(RoleWithMessageQueueTaskTestSpec):
 
             add_msg_queue(msg=body)
             _msg_cnt = add_msg_cnt()
-            if _msg_cnt == TestingMessageCnt - 1:
-                raise InterruptedError("Stop the thread for consumer.")
+            # if _msg_cnt == TestingMessageCnt - 1:
+            #     raise InterruptedError("Stop the thread for consumer.")
 
         _topic = self.topic
         return ConsumerArgument.rabbitmq(queue=_topic, callback=_callback, auto_ack=True)

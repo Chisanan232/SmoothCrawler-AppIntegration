@@ -54,8 +54,8 @@ class TestRoleWithActiveMQTask(RoleWithMessageQueueTaskTestSpec):
             assert frame is not None, "The message from Kafka should NOT be empty."
             add_msg_queue(msg=frame)
             _msg_cnt = add_msg_cnt()
-            if _msg_cnt == TestingMessageCnt - 1:
-                raise InterruptedError("Stop the thread for consumer.")
+            # if _msg_cnt == TestingMessageCnt - 1:
+            #     raise InterruptedError("Stop the thread for consumer.")
 
         _topic = self.topic
         return ConsumerArgument.activemq(destination=_topic, callback=_callback)

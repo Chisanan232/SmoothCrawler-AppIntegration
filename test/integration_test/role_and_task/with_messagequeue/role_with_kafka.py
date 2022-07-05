@@ -60,8 +60,8 @@ class TestRoleWithKafkaTask(RoleWithMessageQueueTaskTestSpec):
             assert msg is not None, "The message from Kafka should NOT be empty."
             add_msg_queue(msg=msg)
             _msg_cnt = add_msg_cnt()
-            if _msg_cnt == TestingMessageCnt - 1:
-                raise InterruptedError("Stop the thread for consumer.")
+            # if _msg_cnt == TestingMessageCnt - 1:
+            #     raise InterruptedError("Stop the thread for consumer.")
 
         return ConsumerArgument.kafka(callback=_callback)
 
