@@ -6,16 +6,21 @@ from smoothcrawler.components.data import (
     BaseAsyncDataHandler as _BaseAsyncDataHandler
 )
 from smoothcrawler.crawler import BaseCrawler
-from typing import List, Dict, Iterable, Callable, Generator, Any, Union, Optional, Generic, cast
+from typing import List, Dict, Iterable, Callable, Generator, Any, TypeVar, Union, Optional, Generic, cast
 from abc import ABC, abstractmethod
 import json
 import time
 
 from .task.messagequeue import MessageQueueConfig as _MessageQueueConfig
-from .role.framework import BaseProducer as _BaseProducer, BaseConsumer as _BaseConsumer
+from .role.framework import (
+    ApplicationIntegrationRole as _ApplicationIntegrationRole,
+    BaseProducer as _BaseProducer,
+    BaseConsumer as _BaseConsumer
+)
 from .factory import ApplicationIntegrationFactory as _ApplicationIntegrationFactory
-from .types import BaseRole as _BaseRole
 
+
+_BaseRole = TypeVar("_BaseRole", bound=_ApplicationIntegrationRole)
 
 
 class BaseApplicationIntegrationCrawler(BaseCrawler):
