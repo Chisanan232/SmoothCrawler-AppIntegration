@@ -163,7 +163,13 @@ class XLSXFormat(File):
 
     def write(self, data: Iterable[Iterable]) -> None:
         for d in data:
-            self.__Sheet_Page.append(d)
+            _handled_d = self._handle_data_row(data=d)
+            self.__Sheet_Page.append(_handled_d)
+
+
+    def _handle_data_row(self, data: Iterable) -> list:
+        _handled_d = map(lambda a: str(a), data)
+        return list(_handled_d)
 
 
     def read(self) -> Iterable[Iterable]:

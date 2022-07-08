@@ -27,6 +27,6 @@ class ApplicationIntegrationSourceTask(ApplicationIntegrationTask, ABC):
 class ApplicationIntegrationProcessorTask(ApplicationIntegrationTask, ABC):
 
     @abstractmethod
-    def acquire(self) -> Optional[Any]:
+    def acquire(self, **kwargs) -> Optional[Any]:
         pass
 

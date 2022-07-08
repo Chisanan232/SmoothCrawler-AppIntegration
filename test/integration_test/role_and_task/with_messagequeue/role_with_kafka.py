@@ -1,6 +1,5 @@
 from appintegration.task.messagequeue import MessageQueueConfig, KafkaConfig, KafkaTask
-from appintegration.role.processor import ConsumerArgument
-from appintegration.role.source import ProducerArgument
+from appintegration.arguments import ProducerArgument, ConsumerArgument
 
 from ._spec import (
     # For testing config and its operations
@@ -61,8 +60,8 @@ class TestRoleWithKafkaTask(RoleWithMessageQueueTaskTestSpec):
             assert msg is not None, "The message from Kafka should NOT be empty."
             add_msg_queue(msg=msg)
             _msg_cnt = add_msg_cnt()
-            if _msg_cnt == TestingMessageCnt - 1:
-                raise InterruptedError("Stop the thread for consumer.")
+            # if _msg_cnt == TestingMessageCnt - 1:
+            #     raise InterruptedError("Stop the thread for consumer.")
 
         return ConsumerArgument.kafka(callback=_callback)
 

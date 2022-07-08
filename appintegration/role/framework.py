@@ -1,4 +1,4 @@
-from typing import Iterable, Any, Union, Optional, TypeVar, Generic, cast
+from typing import Iterable, Callable, Any, Optional, TypeVar, Generic, cast
 from abc import ABCMeta, ABC, abstractmethod
 
 from ..task.messagequeue import MessageQueueConfig as _MessageQueueConfig, MessageQueueTask as _MessageQueueTask
@@ -45,10 +45,10 @@ class BaseSource(ApplicationIntegrationRole):
 
 
     def run_process(self, **kwargs) -> None:
-        self._task.init()
+        self._init()
         _data = kwargs.get("data")
         self._write(data=_data)
-        self._task.close()
+        self._close()
 
 
     @abstractmethod
@@ -65,39 +65,14 @@ class BaseProcessor(ApplicationIntegrationRole):
 
 
     def run_process(self, **kwargs) -> Optional[Any]:
-        self._task.init()
+        self._init()
         _data = self._read()
-        self._task.close()
+        self._close()
         return _data
 
 
     @abstractmethod
     def _read(self) -> Optional[Any]:
-        pass
-
-
-
-class BaseMessageQueueArgument(metaclass=ABCMeta):
-
-    def __init__(self):
-        raise Exception("This is a static factory so you shouldn't instantiate this object.")
-
-
-    @staticmethod
-    @abstractmethod
-    def kafka(**kwargs):
-        pass
-
-
-    @staticmethod
-    @abstractmethod
-    def rabbitmq(**kwargs):
-        pass
-
-
-    @staticmethod
-    @abstractmethod
-    def activemq(**kwargs):
         pass
 
 
@@ -109,28 +84,18 @@ class MessageQueueRole(ApplicationIntegrationRole, ABC):
         self._task = cast(_MessageQueueTask, self._task)
 
 
-    # @abstractmethod
-    # def connect(self) -> Any:
-    #     pass
-
-
-    # @abstractmethod
-    # def subscribe(self, topic: str) -> Any:
-    #     pass
-
-
 
 class BaseProducer(MessageQueueRole):
 
     def run_process(self, config: _MessageQueueConfig, send_args: dict) -> None:
-        self._task.init(config=config)
+        self._init(config=config)
         assert type(send_args) is dict, "The type of option *send_args* should be a dict."
         self._send(**send_args)
-        self._task.close()
+        self._close()
 
 
     @abstractmethod
-    def _send(self, msg: Union[str, list]) -> None:
+    def _send(self, **kwargs) -> None:
         pass
 
 
@@ -138,13 +103,17 @@ class BaseProducer(MessageQueueRole):
 class BaseConsumer(MessageQueueRole):
 
     def run_process(self, config: _MessageQueueConfig, poll_args: dict) -> None:
-        self._task.init(config=config)
-        assert type(poll_args) is dict, "The type of option *send_args* should be a dict."
+        self._init(config=config)
+        assert type(poll_args) is dict, "The type of option *poll_args* should be a dict."
         self._poll(**poll_args)
-        self._task.close()
+        self._close()
 
 
     @abstractmethod
     def _poll(self, **kwargs) -> Any:
         pass
+
+
+    def format_callback(self, callback: Callable) -> Callable:
+        return self._task.generate_poll_callable(callback=callback)
 
