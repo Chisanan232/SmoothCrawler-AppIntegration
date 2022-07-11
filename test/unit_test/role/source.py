@@ -1,4 +1,4 @@
-from appintegration.role.source import CrawlerSource, CrawlerProducer
+from smoothcrawler_appintegration.role.source import CrawlerSource, CrawlerProducer
 
 from .._dummy_objs import (
     # For recording testing state

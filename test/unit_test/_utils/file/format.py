@@ -1,4 +1,4 @@
-from appintegration._utils.file.format import (
+from smoothcrawler_appintegration._utils.file.format import (
     BaseFile, JSONFormat, CSVFormat, XLSXFormat, XMLFormat, PropertiesFormat
 )
 

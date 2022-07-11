@@ -1,4 +1,4 @@
-from appintegration.url import (
+from smoothcrawler_appintegration.url import (
     OPTION_VAR_DATE, API, HTTPMethodIsInvalidError,
     ApplicationIntegrationURL, FileBasedURL, MessageQueueURLProducer
 )
