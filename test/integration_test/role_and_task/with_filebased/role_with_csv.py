@@ -1,4 +1,4 @@
-from appintegration.task.filebased import CSVTask
+from smoothcrawler_appintegration.task.filebased import CSVTask
 
 from ...._config import Test_CSV_File_Path, Test_Reading_Mode, Test_Writing_Mode
 from ...._data import Test_Data_List

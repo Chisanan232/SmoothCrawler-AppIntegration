@@ -1,4 +1,4 @@
-from appintegration.task.filebased import XMLTask
+from smoothcrawler_appintegration.task.filebased import XMLTask
 
 from ...._config import Test_XML_File_Path, Test_Reading_Mode, Test_XML_Writing_Mode
 from ...._data import Test_Data_List

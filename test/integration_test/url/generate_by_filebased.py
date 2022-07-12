@@ -1,10 +1,10 @@
-from appintegration.task.filebased import FileBasedTask
-from appintegration.task import (
+from smoothcrawler_appintegration.task.filebased import FileBasedTask
+from smoothcrawler_appintegration.task import (
     # For file based application integration
     CSVTask, XLSXTask, JSONTask, XMLTask, PropertiesTask
 )
-from appintegration.role import CrawlerSource
-from appintegration.url import OPTION_VAR_DATE, API, FileBasedURL
+from smoothcrawler_appintegration.role import CrawlerSource
+from smoothcrawler_appintegration.url import OPTION_VAR_DATE, API, FileBasedURL
 
 from ...unit_test._utils.file.format import FormatTestSpec
 from ..._config import (

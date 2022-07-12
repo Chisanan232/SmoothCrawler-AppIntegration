@@ -1,5 +1,5 @@
-from appintegration.task.messagequeue import MessageQueueConfig, RabbitMQConfig, RabbitMQTask
-from appintegration.arguments import ProducerArgument, ConsumerArgument
+from smoothcrawler_appintegration.task.messagequeue import MessageQueueConfig, RabbitMQConfig, RabbitMQTask
+from smoothcrawler_appintegration.arguments import ProducerArgument, ConsumerArgument
 
 from ._spec import (
     # For testing config and its operations

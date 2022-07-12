@@ -1,7 +1,7 @@
-from appintegration.task.messagequeue import MessageQueueTask, MessageQueueConfig, KafkaConfig, RabbitMQConfig, ActiveMQConfig
-from appintegration.arguments import ProducerArgument, ConsumerArgument
-from appintegration.url import API, MessageQueueURLProducer, OPTION_VAR_DATE
-from appintegration import CrawlerConsumer, CrawlerProducer, KafkaTask, RabbitMQTask, ActiveMQTask
+from smoothcrawler_appintegration.task.messagequeue import MessageQueueTask, MessageQueueConfig, KafkaConfig, RabbitMQConfig, ActiveMQConfig
+from smoothcrawler_appintegration.arguments import ProducerArgument, ConsumerArgument
+from smoothcrawler_appintegration.url import API, MessageQueueURLProducer, OPTION_VAR_DATE
+from smoothcrawler_appintegration import CrawlerConsumer, CrawlerProducer, KafkaTask, RabbitMQTask, ActiveMQTask
 
 from ._spec import ApplicationIntegrationURLTestSpec
 

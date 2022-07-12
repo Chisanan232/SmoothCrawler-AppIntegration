@@ -1,6 +1,6 @@
-from appintegration. components import DataHandlerBeforeBack
-from appintegration.role import CrawlerSource
-from appintegration.task import CSVTask
+from smoothcrawler_appintegration. components import DataHandlerBeforeBack
+from smoothcrawler_appintegration.role import CrawlerSource
+from smoothcrawler_appintegration.task import CSVTask
 
 from ._persistence_layer import StockDao
 

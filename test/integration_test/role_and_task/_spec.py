@@ -1,6 +1,6 @@
-from appintegration.role.framework import ApplicationIntegrationRole, MessageQueueRole
-from appintegration.task.framework import ApplicationIntegrationTask
-from appintegration.task.messagequeue import MessageQueueTask
+from smoothcrawler_appintegration.role.framework import ApplicationIntegrationRole, MessageQueueRole
+from smoothcrawler_appintegration.task.framework import ApplicationIntegrationTask
+from smoothcrawler_appintegration.task.messagequeue import MessageQueueTask
 
 from typing import TypeVar, Generic
 from abc import ABCMeta, abstractmethod

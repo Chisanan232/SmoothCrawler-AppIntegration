@@ -1,6 +1,6 @@
-from appintegration.task.framework import ApplicationIntegrationTask
-from appintegration.role.framework import ApplicationIntegrationRole
-from appintegration.url import ApplicationIntegrationURL
+from smoothcrawler_appintegration.task.framework import ApplicationIntegrationTask
+from smoothcrawler_appintegration.role.framework import ApplicationIntegrationRole
+from smoothcrawler_appintegration.url import ApplicationIntegrationURL
 
 from ..._data import Test_URLs_List
 
