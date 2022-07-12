@@ -1,10 +1,5 @@
-from smoothcrawler.urls import (
-    # The options for the URL generating
-    OPTION_VAR_INDEX, OPTION_VAR_DATE, OPTION_VAR_DATETIME, OPTION_VAR_ITERATOR,
-    # The operation for setting option of URL generating
-    get_option, set_index_rule, set_date_rule, set_datetime_rule, set_iterator_rule,
-    # The object for extending
-    URL as _URL)
+# The object for extending
+from smoothcrawler.urls import URL as _URL
 from typing import Iterable, Any, Union, Optional
 from abc import ABC, abstractmethod
 import json
@@ -13,17 +8,6 @@ import re
 from .task.messagequeue import MessageQueueConfig as _MessageQueueConfig
 from .role.framework import ApplicationIntegrationRole as _ApplicationIntegrationRole
 
-
-OPTION_VAR_INDEX = OPTION_VAR_INDEX
-OPTION_VAR_DATE = OPTION_VAR_DATE
-OPTION_VAR_DATETIME = OPTION_VAR_DATETIME
-OPTION_VAR_ITERATOR = OPTION_VAR_ITERATOR
-
-get_option = get_option
-set_index_rule = set_index_rule
-set_date_rule = set_date_rule
-set_datetime_rule = set_datetime_rule
-set_iterator_rule = set_iterator_rule
 
 
 class HTTPMethodIsInvalidError(ValueError):
