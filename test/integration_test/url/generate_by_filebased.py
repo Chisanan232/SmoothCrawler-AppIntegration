@@ -4,7 +4,7 @@ from smoothcrawler_appintegration.task import (
     CSVTask, XLSXTask, JSONTask, XMLTask, PropertiesTask
 )
 from smoothcrawler_appintegration.role import CrawlerSource
-from smoothcrawler_appintegration.url import OPTION_VAR_DATE, API, FileBasedURL
+from smoothcrawler_appintegration.url import API, FileBasedURL
 
 from ...unit_test._utils.file.format import FormatTestSpec
 from ..._config import (
@@ -15,6 +15,7 @@ from ..._config import (
 )
 from ._spec import ApplicationIntegrationURLTestSpec
 
+from smoothcrawler.urls import OPTION_VAR_DATE
 from typing import Iterable, TypeVar, Generic
 from abc import ABC, abstractmethod
 import pytest
