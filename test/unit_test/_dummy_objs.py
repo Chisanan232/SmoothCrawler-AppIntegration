@@ -1,7 +1,7 @@
-from appintegration.task.messagequeue import MessageQueueConfig
-from appintegration.task.framework import ApplicationIntegrationSourceTask, ApplicationIntegrationProcessorTask
-from appintegration.role.framework import BaseSource, BaseProducer, BaseProcessor, BaseConsumer
-from appintegration.url import API, ApplicationIntegrationURL
+from smoothcrawler_appintegration.task.messagequeue import MessageQueueConfig
+from smoothcrawler_appintegration.task.framework import ApplicationIntegrationSourceTask, ApplicationIntegrationProcessorTask
+from smoothcrawler_appintegration.role.framework import BaseSource, BaseProducer, BaseProcessor, BaseConsumer
+from smoothcrawler_appintegration.url import API, ApplicationIntegrationURL
 
 from typing import List, Iterable, TypeVar, Any, Optional, Union
 from enum import Enum

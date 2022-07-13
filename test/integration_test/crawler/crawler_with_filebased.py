@@ -1,8 +1,8 @@
-from appintegration.task.filebased import FileBasedTask, CSVTask, XLSXTask, JSONTask, XMLTask, PropertiesTask
-from appintegration.crawler import FileBasedCrawler
-from appintegration.factory import ApplicationIntegrationFactory
-from appintegration.role import CrawlerSource, CrawlerProcessor
-from appintegration.url import OPTION_VAR_DATE, API, FileBasedURL
+from smoothcrawler_appintegration.task.filebased import FileBasedTask, CSVTask, XLSXTask, JSONTask, XMLTask, PropertiesTask
+from smoothcrawler_appintegration.crawler import FileBasedCrawler
+from smoothcrawler_appintegration.factory import ApplicationIntegrationFactory
+from smoothcrawler_appintegration.role import CrawlerSource, CrawlerProcessor
+from smoothcrawler_appintegration.url import API, FileBasedURL
 
 from ...unit_test._utils.file.format import FormatTestSpec
 from ..._config import (
@@ -18,6 +18,7 @@ from .._config import (
 from ._components import DataFilePersistenceLayer
 from ._spec import CrawlerTestSpec
 
+from smoothcrawler.urls import OPTION_VAR_DATE
 from typing import Iterable, TypeVar, Generic, cast
 from abc import abstractmethod
 import pytest

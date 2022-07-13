@@ -1,7 +1,7 @@
 [run]
 parallel = True
 relative_files = True
-source=./appintegration
+source=./smoothcrawler_appintegration
 
 omit =
 #    */__init__.py

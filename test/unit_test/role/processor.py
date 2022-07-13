@@ -1,4 +1,4 @@
-from appintegration.role.processor import CrawlerProcessor, CrawlerConsumer
+from smoothcrawler_appintegration.role.processor import CrawlerProcessor, CrawlerConsumer
 
 from .._dummy_objs import (
     # For recording testing state

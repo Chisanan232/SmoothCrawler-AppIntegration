@@ -1,5 +1,5 @@
-from appintegration.task.framework import ApplicationIntegrationSourceTask, ApplicationIntegrationProcessorTask
-from appintegration.task.filebased import CSVTask, XLSXTask, JSONTask, XMLTask, PropertiesTask
+from smoothcrawler_appintegration.task.framework import ApplicationIntegrationSourceTask, ApplicationIntegrationProcessorTask
+from smoothcrawler_appintegration.task.filebased import CSVTask, XLSXTask, JSONTask, XMLTask, PropertiesTask
 
 from ..._config import (
     # For file paths

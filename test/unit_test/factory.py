@@ -1,7 +1,7 @@
-from appintegration.role.framework import ApplicationIntegrationRole
-from appintegration.task.framework import ApplicationIntegrationTask
-from appintegration.components import DataHandlerBeforeBack
-from appintegration.factory import ApplicationIntegrationFactory
+from smoothcrawler_appintegration.role.framework import ApplicationIntegrationRole
+from smoothcrawler_appintegration.task.framework import ApplicationIntegrationTask
+from smoothcrawler_appintegration.components import DataHandlerBeforeBack
+from smoothcrawler_appintegration.factory import ApplicationIntegrationFactory
 
 from smoothcrawler.components.data import T
 from smoothcrawler.components import HTTP, BaseHTTPResponseParser, BaseDataHandler, PersistenceFacade

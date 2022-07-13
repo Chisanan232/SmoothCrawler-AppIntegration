@@ -1,4 +1,4 @@
-from appintegration.task.framework import (
+from smoothcrawler_appintegration.task.framework import (
     ApplicationIntegrationSourceTask,
     ApplicationIntegrationProcessorTask
 )

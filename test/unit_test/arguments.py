@@ -1,4 +1,4 @@
-from appintegration.arguments import BaseMessageQueueArgument, ConsumerArgument, ProducerArgument
+from smoothcrawler_appintegration.arguments import BaseMessageQueueArgument, ConsumerArgument, ProducerArgument
 
 from abc import ABCMeta, abstractmethod
 from typing import Type, TypeVar
