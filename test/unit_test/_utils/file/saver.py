@@ -1,5 +1,5 @@
-from appintegration._utils.file.format import File
-from appintegration._utils.file.saver import BaseSaver, FileSaver
+from smoothcrawler_appintegration._utils.file.format import File
+from smoothcrawler_appintegration._utils.file.saver import BaseSaver, FileSaver
 
 from ...._data import Test_Data_List
 

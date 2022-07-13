@@ -1,6 +1,6 @@
-from appintegration.role.source import CrawlerSource
-from appintegration.role.processor import CrawlerProcessor
-from appintegration.task.filebased import FileBasedTask
+from smoothcrawler_appintegration.role.source import CrawlerSource
+from smoothcrawler_appintegration.role.processor import CrawlerProcessor
+from smoothcrawler_appintegration.task.filebased import FileBasedTask
 
 from ....unit_test._utils.file.format import FormatTestSpec
 from .._spec import BaseTestSpecConfig, BaseRoleAndTaskTestSpec

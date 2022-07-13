@@ -1,6 +1,6 @@
-from appintegration.role.processor import CrawlerConsumer
-from appintegration.role.source import CrawlerProducer
-from appintegration.task.messagequeue import MessageQueueConfig, MessageQueueTask
+from smoothcrawler_appintegration.role.processor import CrawlerConsumer
+from smoothcrawler_appintegration.role.source import CrawlerProducer
+from smoothcrawler_appintegration.task.messagequeue import MessageQueueConfig, MessageQueueTask
 
 from .._spec import BaseTestSpecConfig, BaseRoleAndTaskTestSpec
 

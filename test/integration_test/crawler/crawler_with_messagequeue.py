@@ -1,18 +1,19 @@
-from appintegration.task.messagequeue import (
+from smoothcrawler_appintegration.task.messagequeue import (
     MessageQueueConfig, MessageQueueTask,
     KafkaConfig, KafkaTask,
     RabbitMQConfig, RabbitMQTask,
     ActiveMQConfig, ActiveMQTask
 )
-from appintegration.crawler import AppIntegrationCrawler, MessageQueueCrawler
-from appintegration.factory import ApplicationIntegrationFactory
-from appintegration.arguments import ProducerArgument, ConsumerArgument
-from appintegration.role import CrawlerProducer, CrawlerConsumer
-from appintegration.url import OPTION_VAR_DATE, API, MessageQueueURLProducer
+from smoothcrawler_appintegration.crawler import MessageQueueCrawler
+from smoothcrawler_appintegration.factory import ApplicationIntegrationFactory
+from smoothcrawler_appintegration.arguments import ProducerArgument, ConsumerArgument
+from smoothcrawler_appintegration.role import CrawlerProducer, CrawlerConsumer
+from smoothcrawler_appintegration.url import API, MessageQueueURLProducer
 
-from ._components import RequestsHTTPRequest, RequestsStockHTTPResponseParser, ExampleWebDataHandler, DataFilePersistenceLayer, StockDataHandlerBeforeBack
+from ._components import DataFilePersistenceLayer
 from ._spec import CrawlerTestSpec
 
+from smoothcrawler.urls import OPTION_VAR_DATE
 from typing import Callable, Tuple, Iterable, TypeVar, Generic, Union, cast
 from pika import PlainCredentials
 from abc import abstractmethod

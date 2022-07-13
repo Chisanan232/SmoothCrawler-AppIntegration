@@ -1,4 +1,4 @@
-from appintegration.task.filebased import JSONTask
+from smoothcrawler_appintegration.task.filebased import JSONTask
 
 from ...._config import Test_JSON_File_Path, Test_Reading_Mode, Test_Writing_Mode
 from ...._data import Test_JSON_Data, Test_Data_List

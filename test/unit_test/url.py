@@ -1,5 +1,5 @@
-from appintegration.url import (
-    OPTION_VAR_DATE, API, HTTPMethodIsInvalidError,
+from smoothcrawler_appintegration.url import (
+    API, HTTPMethodIsInvalidError,
     ApplicationIntegrationURL, FileBasedURL, MessageQueueURLProducer
 )
 
@@ -12,6 +12,7 @@ from ._dummy_objs import (
 from .._config import Test_HTTP_Parameters, Test_HTTP_Body, Test_HTTP_Content_Type
 from .._data import Test_URL, Test_URLs_List
 
+from smoothcrawler.urls import OPTION_VAR_DATE
 from typing import Iterable, TypeVar, Generic, Union
 from abc import ABCMeta, abstractmethod
 import traceback

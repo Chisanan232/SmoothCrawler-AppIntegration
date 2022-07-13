@@ -1,5 +1,5 @@
-from appintegration.task.messagequeue import MessageQueueConfig
-from appintegration.role.framework import ApplicationIntegrationRole, MessageQueueRole
+from smoothcrawler_appintegration.task.messagequeue import MessageQueueConfig
+from smoothcrawler_appintegration.role.framework import ApplicationIntegrationRole, MessageQueueRole
 
 from ..._data import Test_Data_List
 from .._dummy_objs import (

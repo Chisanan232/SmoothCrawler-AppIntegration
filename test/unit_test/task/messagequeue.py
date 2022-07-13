@@ -1,5 +1,5 @@
-from appintegration.task.framework import ApplicationIntegrationSourceTask, ApplicationIntegrationProcessorTask
-from appintegration.task.messagequeue import (
+from smoothcrawler_appintegration.task.framework import ApplicationIntegrationSourceTask, ApplicationIntegrationProcessorTask
+from smoothcrawler_appintegration.task.messagequeue import (
     MessageQueueConfig, MessageQueueTask,
     KafkaConfig, KafkaTask,
     RabbitMQConfig, RabbitMQTask,
@@ -548,6 +548,7 @@ class TestActiveMQTask(MessageQueueTaskTestSpec):
         _test_producer = threading.Thread(target=self._publishing_process, args=(task_for_generating, ))
 
         _test_consumer.start()
+        time.sleep(3)
         _test_producer.start()
 
         _test_producer.join()
@@ -573,9 +574,9 @@ class TestActiveMQTask(MessageQueueTaskTestSpec):
 
             MessageQueueBodies.append(frame)
             MessageQueueCnt += 1
-            if MessageQueueCnt == TestingMessageCnt - 1:
-                # _task.close()
-                raise SystemExit()
+            # if MessageQueueCnt == TestingMessageCnt - 1:
+            #     # _task.close()
+            #     raise SystemExit()
                 # raise InterruptedError("Stop the thread for consumer.")
 
         _topic = self._testing_topic
