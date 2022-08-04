@@ -4,8 +4,8 @@ from .shareddatabase import SharedDatabaseTask
 from .directconnect import PipeTask, SocketTask
 
 if _has_kafka_pkg():
-    from .messagequeue import KafkaTask
+    from .messagequeue import KafkaConfig, KafkaTask
 if _has_pika_pkg():
-    from .messagequeue import RabbitMQTask
+    from .messagequeue import RabbitMQConfig, RabbitMQTask
 if _has_stomp_pkg():
-    from .messagequeue import ActiveMQTask
+    from .messagequeue import ActiveMQConfig, ActiveMQTask
