@@ -1,0 +1,185 @@
+#######################################################################################
+#
+# Description:
+# Build and run testing with Python testing framework *pytest*
+#
+# Environment variables:
+# * TESTING_TYPE: Which testing you want to get and run.
+#         - Allowable values: 'unit-test', 'integration-test'
+#
+# Example running docker command line:
+# >>> # Activate and run the docker compose.
+# >>> docker-compose -f ./docker-compose_pytest.yaml up --build
+#
+# >>> # Shutdown the docker compose.
+# >>> docker-compose -f ./docker-compose_pytest.yaml down
+#
+#######################################################################################
+
+version: "3.8"
+
+services:
+
+  pytest_linux:
+    container_name: sc-appintegration_pytest
+    environment:
+#      - TESTING_TYPE=unit-test
+      - TESTING_TYPE=integration-test
+    build:
+      context: .
+      dockerfile: Dockerfile_pytest
+    depends_on:
+        pytest_mq_kafka:
+          condition: service_healthy
+        pytest_mq_rabbitmq:
+          condition: service_healthy
+        pytest_mq_activemq:
+          condition: service_healthy
+    networks:
+      sc-appintegraton_pytest_network:
+        ipv4_address: 10.20.23.2
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 64M
+        reservations:
+          cpus: '0.125'
+          memory: 32M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 2
+
+  pytest_zookeeper:
+    container_name: sc-appintegration_pytest-zookeeper
+    image: zookeeper:latest
+    restart: always
+    networks:
+      sc-appintegraton_pytest_network:
+        ipv4_address: 10.20.23.10
+    ports:
+      - "2181:2181"
+      - "2888:2888"
+      - "3888:3888"
+      - "7010:7010"
+    healthcheck:
+      test: ["CMD", "/apache-zookeeper-3.8.0-bin/bin/zkServer.sh", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 64M
+        reservations:
+          cpus: '0.125'
+          memory: 32M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 2
+
+  pytest_mq_kafka:
+    container_name: sc-appintegration_pytest-kafka
+    image: wurstmeister/kafka:2.13-2.7.0
+    restart: always
+    environment:
+      - KAFKA_BROKER_ID=0
+      - KAFKA_ZOOKEEPER_CONNECT=10.20.23.10:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+    depends_on:
+      pytest_zookeeper:
+        condition: service_healthy
+    networks:
+      sc-appintegraton_pytest_network:
+        ipv4_address: 10.20.23.11
+    ports:
+      - "9092:9092"
+    healthcheck:
+      test: ["CMD", "/opt/kafka_2.13-2.7.0/bin/kafka-broker-api-versions.sh", "--bootstrap-server", "127.0.0.1:9092", "--version"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 64M
+        reservations:
+          cpus: '0.125'
+          memory: 32M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 2
+
+  pytest_mq_rabbitmq:
+    container_name: sc-appintegration_pytest-rabbitmq
+    image: rabbitmq:3.9.20
+    hostname: pytest-rabbit
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+    networks:
+      sc-appintegraton_pytest_network:
+        ipv4_address: 10.20.23.12
+    ports:
+      - "5671:5671"
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 64M
+        reservations:
+          cpus: '0.125'
+          memory: 32M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 2
+
+  pytest_mq_activemq:
+    container_name: sc-appintegration_pytest-activemq
+    image: rmohr/activemq:5.15.9
+    networks:
+      sc-appintegraton_pytest_network:
+        ipv4_address: 10.20.23.13
+    ports:
+      - "61613:61613"
+      - "8161:8161"
+    healthcheck:
+      test: ["CMD", "/opt/apache-activemq-5.15.9/bin/activemq", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 64M
+        reservations:
+          cpus: '0.125'
+          memory: 32M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 2
+
+
+networks:
+  sc-appintegraton_pytest_network:
+    driver: ipvlan
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.20.23.0/24

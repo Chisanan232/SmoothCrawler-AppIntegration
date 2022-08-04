@@ -4,29 +4,29 @@ set -ex
 runtime_os=$1
 
 declare -a init_tests
-declare -a utils_file_tests
 declare -a task_tests
 declare -a role_tests
+declare -a utils_file_tests
 
 getalltests() {
-    declare -a testpatharray=( $(ls -F $1 | grep -v '/$' | grep -v '__init__.py' | grep -v 'test_config.py' | grep -v -E '^_[a-z_]{1,64}.py' | grep -v '__pycache__'))
+    declare -a testpatharray=( $(ls -F "$1" | grep -v '/$' | grep -v '__init__.py' | grep -v 'test_config.py' | grep -v -E '^_[a-z_]{1,64}.py' | grep -v '__pycache__'))
 
     declare -a alltestpaths
     for (( i = 0; i < ${#testpatharray[@]}; i++ )) ; do
         alltestpaths[$i]=$1${testpatharray[$i]}
     done
 
-    if echo $1 | grep -q "task";
+    if echo "$1" | grep -q "task";
     then
-        task_tests=${alltestpaths[@]}
-    elif echo $1 | grep -q "role";
+        task_tests=("${alltestpaths[@]}")
+    elif echo "$1" | grep -q "role";
     then
-        role_tests=${alltestpaths[@]}
-    elif echo $1 | grep -q "utils" | grep -q "file";
+        role_tests=("${alltestpaths[@]}")
+    elif echo "$1" | grep -q "utils" | grep -q "file";
     then
-        utils_file_tests=${alltestpaths[@]}
+        utils_file_tests=("${alltestpaths[@]}")
     else
-        init_tests=${alltestpaths[@]}
+        init_tests=("${alltestpaths[@]}")
     fi
 }
 
@@ -43,10 +43,10 @@ getalltests $utils_file_path
 dest=( "${init_tests[@]} ${task_tests[@]} ${role_tests[@]} ${utils_file_tests[@]}" )
 
 
-if echo $runtime_os | grep -q "windows";
+if echo "$runtime_os" | grep -q "windows";
 then
     printf "${dest[@]}" | jq -R .
-elif echo $runtime_os | grep -q "unix";
+elif echo "$runtime_os" | grep -q "unix";
 then
     printf '%s\n' "${dest[@]}" | jq -R . | jq -cs .
 else

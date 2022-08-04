@@ -12,35 +12,36 @@ declare -a role_and_task_with_messagequeue_tests
 declare -a crawler_tests
 
 getalltests() {
-    declare -a testpatharray=( $(ls -F $1 | grep -v '/$' | grep -v '__init__.py' | grep -v 'test_config.py' | grep -v -E '^_[a-z_]{1,64}.py' | grep -v '__pycache__'))
+    declare -a testpatharray=( $(ls -F "$1" | grep -v '/$' | grep -v '__init__.py' | grep -v 'test_config.py' | grep -v -E '^_[a-z_]{1,64}.py' | grep -v '__pycache__'))
 
     declare -a alltestpaths
     for (( i = 0; i < ${#testpatharray[@]}; i++ )) ; do
         alltestpaths[$i]=$1${testpatharray[$i]}
     done
 
-    printf '%s|' "${alltestpaths[@]}"; echo
-
-    if echo $1 | grep -q "role_and_task/with_filebased";
+    if echo "$1" | grep -q "role_and_task";
     then
-        role_and_task_with_filebased_tests=${alltestpaths[@]}
-    elif echo $1 | grep -q "role_and_task/with_directconnect";
+        if echo "$1" | grep -q "with_filebased";
+        then
+            role_and_task_with_filebased_tests=("${alltestpaths[@]}")
+        elif echo "$1" | grep -q "with_directconnect";
+        then
+            role_and_task_with_directconnect_tests=("${alltestpaths[@]}")
+        elif echo "$1" | grep -q "with_shareddatabase";
+        then
+            role_and_task_with_shareddatabase_tests=("${alltestpaths[@]}")
+        elif echo "$1" | grep -q "with_messagequeue";
+        then
+            role_and_task_with_messagequeue_tests=("${alltestpaths[@]}")
+        fi
+    elif echo "$1" | grep -q "url";
     then
-        role_and_task_with_directconnect_tests=${alltestpaths[@]}
-    elif echo $1 | grep -q "role_and_task/with_shareddatabase";
+        url_tests=("${alltestpaths[@]}")
+    elif echo "$1" | grep -q "crawler";
     then
-        role_and_task_with_shareddatabase_tests=${alltestpaths[@]}
-    elif echo $1 | grep -q "role_and_task/with_messagequeue";
-    then
-        role_and_task_with_messagequeue_tests=${alltestpaths[@]}
-    elif echo $1 | grep -q "url";
-    then
-        url_tests=${alltestpaths[@]}
-    elif echo $1 | grep -q "crawler";
-    then
-        crawler_tests=${alltestpaths[@]}
+        crawler_tests=("${alltestpaths[@]}")
     else
-        base_tests=${alltestpaths[@]}
+        base_tests=("${alltestpaths[@]}")
     fi
 }
 
@@ -60,19 +61,19 @@ getalltests $role_with_shareddatabase_task_path
 getalltests $role_with_messagequeue_task_path
 getalltests $crawler_path
 
-dest=( "${base_tests[@]} \
-            ${url_tests[@]} \
-            ${role_and_task_with_filebased_tests[@]} \
-            ${role_and_task_with_directconnect_tests[@]} \
-            ${role_and_task_with_shareddatabase_tests[@]} \
-            ${role_and_task_with_messagequeue_tests[@]} \
+dest=( "${base_tests[@]}
+            ${url_tests[@]}
+            ${role_and_task_with_filebased_tests[@]}
+            ${role_and_task_with_directconnect_tests[@]}
+            ${role_and_task_with_shareddatabase_tests[@]}
+            ${role_and_task_with_messagequeue_tests[@]}
             ${crawler_tests[@]}" )
 
 
-if echo $runtime_os | grep -q "windows";
+if echo "$runtime_os" | grep -q "windows";
 then
     printf '%s\n' "${dest[@]}" | jq -R .
-elif echo $runtime_os | grep -q "unix";
+elif echo "$runtime_os" | grep -q "unix";
 then
     printf '%s\n' "${dest[@]}" | jq -R . | jq -cs .
 else
