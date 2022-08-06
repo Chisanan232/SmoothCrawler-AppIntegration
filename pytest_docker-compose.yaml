@@ -14,6 +14,22 @@
 # >>> # Shutdown the docker compose.
 # >>> docker-compose -f ./docker-compose_pytest.yaml down
 #
+# Warning:
+# Please be careful about the resource configuration (the settings in *deploy.resource*).
+# The container with not enough resource may crash lead to it got fail while activating
+# entire docker-compose project. For example, I had faced an issue about other 2 or 3
+# containers setup successfully temporary, and some of them dead. However, because it
+# was successfully activate the service in containers so that the health checking mechanism
+# determines the container was health, and docker-compose would go ahead to activate
+# rest of containers. But the rest of containers depends on the service health of other
+# containers. So unfortunately, it would occur failure and print the error log message
+# like below:
+#
+#     ERROR: compose.cli.main.main: Encountered errors while bringing up the project.
+#
+# But the truly root cause is the resource of other containers is NOT enough. Therefore,
+# please be careful of the resource setting in each container.
+#
 #######################################################################################
 
 version: "3.8"
@@ -25,9 +41,15 @@ services:
     environment:
 #      - TESTING_TYPE=unit-test
       - TESTING_TYPE=integration-test
+      - PYTEST_KAFKA_IP=10.20.23.11
+      - PYTEST_RABBITMQ_HOST=10.20.23.12:5672
+#      - PYTEST_RABBITMQ_VIRTUAL_HOST=/
+#      - PYTEST_RABBITMQ_USERNAME=user
+#      - PYTEST_RABBITMQ_PASSWORD=password
+      - PYTEST_ACTIVEMQ_HOST=10.20.23.13:61613
     build:
       context: .
-      dockerfile: Dockerfile_pytest
+      dockerfile: pytest_Dockerfile
     depends_on:
         pytest_mq_kafka:
           condition: service_healthy
@@ -41,14 +63,13 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
-          memory: 64M
+          cpus: '0.75'
+          memory: 256M
         reservations:
-          cpus: '0.125'
-          memory: 32M
+          cpus: '0.5'
+          memory: 128M
       restart_policy:
         condition: on-failure
-        delay: 5s
         max_attempts: 2
 
   pytest_zookeeper:
@@ -71,14 +92,13 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
-          memory: 64M
+          cpus: '0.75'
+          memory: 256M
         reservations:
-          cpus: '0.125'
-          memory: 32M
+          cpus: '0.5'
+          memory: 128M
       restart_policy:
         condition: on-failure
-        delay: 5s
         max_attempts: 2
 
   pytest_mq_kafka:
@@ -88,7 +108,7 @@ services:
     environment:
       - KAFKA_BROKER_ID=0
       - KAFKA_ZOOKEEPER_CONNECT=10.20.23.10:2181
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://10.20.23.11:9092
       - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
     depends_on:
       pytest_zookeeper:
@@ -106,14 +126,13 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
-          memory: 64M
+          cpus: '1'
+          memory: 512M
         reservations:
-          cpus: '0.125'
-          memory: 32M
+          cpus: '0.75'
+          memory: 256M
       restart_policy:
         condition: on-failure
-        delay: 5s
         max_attempts: 2
 
   pytest_mq_rabbitmq:
@@ -138,14 +157,13 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
-          memory: 64M
+          cpus: '1'
+          memory: 512M
         reservations:
-          cpus: '0.125'
-          memory: 32M
+          cpus: '0.75'
+          memory: 256M
       restart_policy:
         condition: on-failure
-        delay: 5s
         max_attempts: 2
 
   pytest_mq_activemq:
@@ -165,21 +183,24 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
-          memory: 64M
+          cpus: '1'
+          memory: 512M
         reservations:
-          cpus: '0.125'
-          memory: 32M
+          cpus: '0.75'
+          memory: 256M
       restart_policy:
         condition: on-failure
-        delay: 5s
         max_attempts: 2
 
 
 networks:
   sc-appintegraton_pytest_network:
-    driver: ipvlan
+    # # It would test web spider features so that it needs to connect to internet.
+    driver: bridge
     ipam:
       driver: default
       config:
         - subnet: 10.20.23.0/24
+          gateway: 10.20.23.1
+      options:
+        parent: en0

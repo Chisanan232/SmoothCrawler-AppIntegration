@@ -6,6 +6,9 @@ from smoothcrawler_appintegration.task.messagequeue import (
     ActiveMQConfig, ActiveMQTask
 )
 
+from ..._config import Kafka_IPs, RabbitMQ_Virtual_Host, RabbitMQ_Username, RabbitMQ_Password
+from ..._utils import MessageQueueSystemHost
+
 from typing import Any, Union, TypeVar, Generic, Iterable
 from pika import ConnectionParameters, PlainCredentials
 from abc import ABCMeta, abstractmethod
@@ -352,13 +355,13 @@ class TestKafkaTask(MessageQueueTaskTestSpec):
 
     @pytest.fixture(scope="class")
     def config_for_producer(self) -> KafkaConfig:
-        return KafkaConfig(role="producer")
+        return KafkaConfig(role="producer", bootstrap_servers=Kafka_IPs)
 
 
     @pytest.fixture(scope="class")
     def config_for_consumer(self) -> KafkaConfig:
         _topics = self._testing_topic
-        return KafkaConfig(role="consumer", topics=_topics)
+        return KafkaConfig(role="consumer", topics=_topics, bootstrap_servers=Kafka_IPs)
 
 
     @pytest.fixture(scope="class")
@@ -432,7 +435,8 @@ class TestRabbitMQTask(MessageQueueTaskTestSpec):
 
     @pytest.fixture(scope="class")
     def config(self) -> RabbitMQConfig:
-        return RabbitMQConfig("localhost", 5672, "/", PlainCredentials("user", "password"))
+        _rabbitmq_ip, _rabbitmq_port = MessageQueueSystemHost.get_rabbitmq_ip_and_port()
+        return RabbitMQConfig(_rabbitmq_ip, _rabbitmq_port, RabbitMQ_Virtual_Host, PlainCredentials(RabbitMQ_Username, RabbitMQ_Password))
 
 
     @pytest.fixture(scope="class")
@@ -500,7 +504,8 @@ class TestActiveMQConfig(MessageQueueConfigTestSpec):
 
     @pytest.fixture(scope="class")
     def config(self, **kwargs) -> Generic[_MsgQueueConfig]:
-        return ActiveMQConfig([("127.0.0.1", 61613)])
+        _activemq_ip, _activemq_port = MessageQueueSystemHost.get_activemq_ip_and_port()
+        return ActiveMQConfig([(_activemq_ip, _activemq_port)])
 
 
     def test_generate(self, config: Generic[_MsgQueueConfig]) -> None:
@@ -513,7 +518,8 @@ class TestActiveMQTask(MessageQueueTaskTestSpec):
 
     @pytest.fixture(scope="class")
     def config(self) -> ActiveMQConfig:
-        return ActiveMQConfig([("127.0.0.1", 61613)])
+        _activemq_ip, _activemq_port = MessageQueueSystemHost.get_activemq_ip_and_port()
+        return ActiveMQConfig([(_activemq_ip, _activemq_port)])
 
 
     @pytest.fixture(scope="class")

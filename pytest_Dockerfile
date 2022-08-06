@@ -34,6 +34,11 @@ RUN pip install -U -r ./requirements/requirements-test.txt
 RUN apt-get update && \
       apt-get install -y --no-install-recommends jq
 
+# # Install some internet tool for debug if it needs
+#RUN apt-get install -y iputils-ping && \
+#      apt-get install -y net-tools && \
+#      apt-get install --no-install-recommends --assume-yes netcat
+
 # # Copy package code, testing code and scripts to container
 COPY ./smoothcrawler_appintegration/ ./smoothcrawler_appintegration/
 COPY ./test/ ./test/

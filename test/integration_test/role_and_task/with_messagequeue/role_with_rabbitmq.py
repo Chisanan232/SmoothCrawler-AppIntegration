@@ -1,6 +1,8 @@
 from smoothcrawler_appintegration.task.messagequeue import MessageQueueConfig, RabbitMQConfig, RabbitMQTask
 from smoothcrawler_appintegration.arguments import ProducerArgument, ConsumerArgument
 
+from ...._config import RabbitMQ_Virtual_Host, RabbitMQ_Username, RabbitMQ_Password
+from ...._utils import MessageQueueSystemHost
 from ._spec import (
     # For testing config and its operations
     add_msg_cnt, add_msg_queue, TestingMessageCnt,
@@ -8,7 +10,7 @@ from ._spec import (
     MsgQueueTestSpecConfig, RoleWithMessageQueueTaskTestSpec
 )
 
-from typing import Iterable, Any, TypeVar, Generic, Union
+from typing import Iterable, Any, TypeVar, Union
 from pika import PlainCredentials
 import pytest
 
@@ -36,7 +38,8 @@ class TestRoleWithRabbitMQTask(RoleWithMessageQueueTaskTestSpec):
 
     @pytest.fixture(scope="class")
     def config(self) -> RabbitMQConfig:
-        return RabbitMQConfig("localhost", 5672, "/", PlainCredentials("user", "password"))
+        _rabbitmq_ip, _rabbitmq_port = MessageQueueSystemHost.get_rabbitmq_ip_and_port()
+        return RabbitMQConfig(_rabbitmq_ip, _rabbitmq_port, RabbitMQ_Virtual_Host, PlainCredentials(RabbitMQ_Username, RabbitMQ_Password))
 
 
     @pytest.fixture(scope="class")
