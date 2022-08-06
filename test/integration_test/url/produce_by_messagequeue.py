@@ -3,6 +3,11 @@ from smoothcrawler_appintegration.arguments import ProducerArgument, ConsumerArg
 from smoothcrawler_appintegration.url import API, MessageQueueURLProducer
 from smoothcrawler_appintegration import CrawlerConsumer, CrawlerProducer, KafkaTask, RabbitMQTask, ActiveMQTask
 
+from ..._config import (
+    Kafka_IPs,
+    RabbitMQ_Virtual_Host, RabbitMQ_Username, RabbitMQ_Password
+)
+from ..._utils import MessageQueueSystemHost
 from ._spec import ApplicationIntegrationURLTestSpec
 
 from smoothcrawler.urls import OPTION_VAR_DATE
@@ -196,7 +201,7 @@ class TestURLProducerWithKafka(MessageQueueURLProducerTestSpec):
     @property
     def config(self) -> KafkaConfig:
         _kafka_producer_config = {
-            "bootstrap_servers": "localhost"
+            "bootstrap_servers": Kafka_IPs
         }
         return KafkaConfig(role="producer", topics=self.topic, **_kafka_producer_config)
 
@@ -234,7 +239,8 @@ class TestURLProducerWithRabbitMQ(MessageQueueURLProducerTestSpec):
 
     @property
     def config(self) -> RabbitMQConfig:
-        return RabbitMQConfig("localhost", 5672, "/", pika.PlainCredentials("user", "password"))
+        _rabbitmq_ip, _rabbitmq_port = MessageQueueSystemHost.get_rabbitmq_ip_and_port()
+        return RabbitMQConfig(_rabbitmq_ip, _rabbitmq_port, RabbitMQ_Virtual_Host, pika.PlainCredentials(RabbitMQ_Username, RabbitMQ_Password))
 
 
     @property
@@ -275,7 +281,8 @@ class TestURLProducerWithActiveMQ(MessageQueueURLProducerTestSpec):
 
     @property
     def config(self) -> ActiveMQConfig:
-        return ActiveMQConfig([("127.0.0.1", 61613)])
+        _activemq_ip, _activemq_port = MessageQueueSystemHost.get_activemq_ip_and_port()
+        return ActiveMQConfig([(_activemq_ip, _activemq_port)])
 
 
     @property

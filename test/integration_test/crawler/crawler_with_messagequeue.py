@@ -10,6 +10,8 @@ from smoothcrawler_appintegration.arguments import ProducerArgument, ConsumerArg
 from smoothcrawler_appintegration.role import CrawlerProducer, CrawlerConsumer
 from smoothcrawler_appintegration.url import API, MessageQueueURLProducer
 
+from ..._config import Kafka_IPs, RabbitMQ_Virtual_Host, RabbitMQ_Username, RabbitMQ_Password
+from ..._utils import MessageQueueSystemHost
 from ._components import DataFilePersistenceLayer
 from ._spec import CrawlerTestSpec
 
@@ -382,16 +384,16 @@ class TestMessageQueueCrawlerWithKafka(MessageQueueCrawlerTestSpec):
 
     def processor_config(self) -> KafkaConfig:
         _topics = self.topic
-        return KafkaConfig(role="consumer", topics=_topics)
+        return KafkaConfig(role="consumer", topics=_topics, bootstrap_servers=Kafka_IPs)
 
 
     def source_config(self) -> KafkaConfig:
-        return KafkaConfig(role="producer")
+        return KafkaConfig(role="producer", bootstrap_servers=Kafka_IPs)
 
 
     def new_processor_config(self) -> KafkaConfig:
         _topics = self.new_topic
-        return KafkaConfig(role="consumer", topics=_topics)
+        return KafkaConfig(role="consumer", topics=_topics, bootstrap_servers=Kafka_IPs)
 
 
     def send_arguments(self, topic: str, msg: Union[str, bytes]) -> dict:
@@ -438,7 +440,8 @@ class TestMessageQueueCrawlerWithRabbitMQ(MessageQueueCrawlerTestSpec):
 
 
     def config(self) -> RabbitMQConfig:
-        return RabbitMQConfig("localhost", 5672, "/", PlainCredentials("user", "password"))
+        _rabbitmq_ip, _rabbitmq_port = MessageQueueSystemHost.get_rabbitmq_ip_and_port()
+        return RabbitMQConfig(_rabbitmq_ip, _rabbitmq_port, RabbitMQ_Virtual_Host, PlainCredentials(RabbitMQ_Username, RabbitMQ_Password))
 
 
     @pytest.mark.xfail(reason="It would has problem if run with other testing items.")
@@ -516,7 +519,8 @@ class TestMessageQueueCrawlerWithActiveMQ(MessageQueueCrawlerTestSpec):
 
 
     def config(self) -> ActiveMQConfig:
-        return ActiveMQConfig([("127.0.0.1", 61613)])
+        _activemq_ip, _activemq_port = MessageQueueSystemHost.get_activemq_ip_and_port()
+        return ActiveMQConfig([(_activemq_ip, _activemq_port)])
 
 
     def send_arguments(self, topic: str, msg: Union[str, bytes]) -> dict:
