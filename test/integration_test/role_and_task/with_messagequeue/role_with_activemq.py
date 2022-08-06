@@ -1,6 +1,7 @@
 from smoothcrawler_appintegration.task.messagequeue import MessageQueueConfig, ActiveMQConfig, ActiveMQTask
 from smoothcrawler_appintegration.arguments import ProducerArgument, ConsumerArgument
 
+from ...._utils import MessageQueueSystemHost
 from ._spec import (
     # For testing config and its operations
     add_msg_cnt, add_msg_queue, TestingMessageCnt,
@@ -8,7 +9,7 @@ from ._spec import (
     MsgQueueTestSpecConfig, RoleWithMessageQueueTaskTestSpec
 )
 
-from typing import Iterable, Any, TypeVar, Generic, Union
+from typing import Iterable, Any, TypeVar, Union
 import pytest
 
 
@@ -35,7 +36,8 @@ class TestRoleWithActiveMQTask(RoleWithMessageQueueTaskTestSpec):
 
     @pytest.fixture(scope="class")
     def config(self) -> ActiveMQConfig:
-        return ActiveMQConfig([("127.0.0.1", 61613)])
+        _activemq_ip, _activemq_port = MessageQueueSystemHost.get_activemq_ip_and_port()
+        return ActiveMQConfig([(_activemq_ip, _activemq_port)])
 
 
     @pytest.fixture(scope="class")

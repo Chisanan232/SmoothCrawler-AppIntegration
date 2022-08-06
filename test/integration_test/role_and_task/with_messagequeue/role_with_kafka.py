@@ -1,6 +1,7 @@
 from smoothcrawler_appintegration.task.messagequeue import MessageQueueConfig, KafkaConfig, KafkaTask
 from smoothcrawler_appintegration.arguments import ProducerArgument, ConsumerArgument
 
+from ...._config import Kafka_IPs
 from ._spec import (
     # For testing config and its operations
     add_msg_cnt, add_msg_queue, TestingMessageCnt,
@@ -35,13 +36,13 @@ class TestRoleWithKafkaTask(RoleWithMessageQueueTaskTestSpec):
 
     @pytest.fixture(scope="class")
     def producer_config(self, config: Generic[_MsgQueueConfig]) -> KafkaConfig:
-        return KafkaConfig(role="producer")
+        return KafkaConfig(role="producer", bootstrap_servers=Kafka_IPs)
 
 
     @pytest.fixture(scope="class")
     def consumer_config(self, config: Generic[_MsgQueueConfig]) -> KafkaConfig:
         _topics = self.topic
-        return KafkaConfig(role="consumer", topics=_topics)
+        return KafkaConfig(role="consumer", topics=_topics, bootstrap_servers=Kafka_IPs)
 
 
     @pytest.fixture(scope="class")
