@@ -49,7 +49,7 @@ services:
       - PYTEST_ACTIVEMQ_HOST=10.20.23.13:61613
     build:
       context: .
-      dockerfile: Dockerfile_pytest
+      dockerfile: pytest_Dockerfile
     depends_on:
         pytest_mq_kafka:
           condition: service_healthy
