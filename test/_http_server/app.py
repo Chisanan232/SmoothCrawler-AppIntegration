@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 
 
 _app: Flask = Flask(__name__)
@@ -6,10 +6,14 @@ _app: Flask = Flask(__name__)
 
 @_app.route("/exchangeReport/STOCK_DAY", methods=["GET"])
 def get_stock_data() -> str:
+    _response = request.args.get("response", "json")
+    _date = request.args.get("date", None)    # Example: 20170101
+    _stockNo = request.args.get("stockNo", None)    # Example: 2330
+
     _data = '{' \
             '"stat":"OK",' \
-            '"date":"20170101",' \
-            '"title":"106年01月 2330 台積電           各日成交資訊",' \
+            f'"date":{_date},' \
+            f'"title":"106年01月 {_stockNo} 台積電           各日成交資訊",' \
             '"fields":["日期","成交股數","成交金額","開盤價","最高價","最低價","收盤價","漲跌價差","成交筆數"],' \
             '"data":[' \
                 '["106/01/03","23,550,783","4,300,648,272","181.50","183.50","181.00","183.00","+1.50","8,743"],' \
