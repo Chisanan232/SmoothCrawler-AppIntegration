@@ -19,3 +19,6 @@ mysql-connector-python >= 8.0.28
 
 ## For running testing in a sandbox runtime environment via tool 'tox'
 tox >= 3.25.1
+
+## For running HTTP server for testing crawling feature of web spider
+flask >= 2.2.1
