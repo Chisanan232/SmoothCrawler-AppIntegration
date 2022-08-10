@@ -6,6 +6,8 @@ from smoothcrawler_appintegration.url import API, FileBasedURL
 
 from ...unit_test._utils.file.format import FormatTestSpec
 from ..._config import (
+    # For testing target URL domain
+    TARGET_URL_DOMAIN,
     # For testing file path
     Test_CSV_File_Path, Test_XLSX_File_Path, Test_JSON_File_Path, Test_XML_File_Path, Test_PROPERTIES_File_Path,
     # For file IO streaming mode
@@ -219,7 +221,7 @@ class FileBasedCrawlerTestSpec(CrawlerTestSpec):
 
 
     def _prepare_target_data(self) -> None:
-        _target_url = "https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date={" + OPTION_VAR_DATE + "}&stockNo=2330"
+        _target_url = TARGET_URL_DOMAIN + "/exchangeReport/STOCK_DAY?response=json&date={" + OPTION_VAR_DATE + "}&stockNo=2330"
         _role = CrawlerSource(task=self.task(file=self.file_path, mode=self.writing_mode))
 
         _date_urls = FileBasedURL(role=_role, base=_target_url, start="20220601", end="20220603", formatter="yyyymmdd")

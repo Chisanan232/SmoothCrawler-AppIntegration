@@ -41,6 +41,7 @@ services:
     environment:
 #      - TESTING_TYPE=unit-test
       - TESTING_TYPE=integration-test
+      - PYTEST_TARGET_URL_DOMAIN=http://10.20.23.3:12345
       - PYTEST_KAFKA_IP=10.20.23.11
       - PYTEST_RABBITMQ_HOST=10.20.23.12:5672
 #      - PYTEST_RABBITMQ_VIRTUAL_HOST=/
@@ -51,6 +52,8 @@ services:
       context: .
       dockerfile: pytest_Dockerfile
     depends_on:
+        pytest_http_server:
+          condition: service_healthy
         pytest_mq_kafka:
           condition: service_healthy
         pytest_mq_rabbitmq:
@@ -68,6 +71,33 @@ services:
         reservations:
           cpus: '0.5'
           memory: 128M
+      restart_policy:
+        condition: on-failure
+        max_attempts: 2
+
+  pytest_http_server:
+    container_name: sc-appintegration_pytest-http_server
+    build:
+      context: .
+      dockerfile: pytest_http_server_Dockerfile
+    networks:
+      sc-appintegraton_pytest_network:
+        ipv4_address: 10.20.23.3
+    ports:
+      - "12345:12345"
+    healthcheck:
+      test: ["CMD", "nc", "-zv", "10.20.23.3", "12345"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+        reservations:
+          cpus: '0.25'
+          memory: 64M
       restart_policy:
         condition: on-failure
         max_attempts: 2
@@ -196,7 +226,7 @@ services:
 networks:
   sc-appintegraton_pytest_network:
     # # It would test web spider features so that it needs to connect to internet.
-    driver: bridge
+    driver: ipvlan
     ipam:
       driver: default
       config:
