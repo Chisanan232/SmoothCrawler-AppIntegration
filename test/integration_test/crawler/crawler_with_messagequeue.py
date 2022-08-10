@@ -10,7 +10,7 @@ from smoothcrawler_appintegration.arguments import ProducerArgument, ConsumerArg
 from smoothcrawler_appintegration.role import CrawlerProducer, CrawlerConsumer
 from smoothcrawler_appintegration.url import API, MessageQueueURLProducer
 
-from ..._config import Kafka_IPs, RabbitMQ_Virtual_Host, RabbitMQ_Username, RabbitMQ_Password
+from ..._config import TARGET_URL_DOMAIN, Kafka_IPs, RabbitMQ_Virtual_Host, RabbitMQ_Username, RabbitMQ_Password
 from ..._utils import MessageQueueSystemHost
 from ._components import DataFilePersistenceLayer
 from ._spec import CrawlerTestSpec
@@ -343,7 +343,7 @@ class MessageQueueCrawlerTestSpec(CrawlerTestSpec):
 
         :return: None
         """
-        _target_url = "https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date={" + OPTION_VAR_DATE + "}&stockNo=2330"
+        _target_url = TARGET_URL_DOMAIN + "/exchangeReport/STOCK_DAY?response=json&date={" + OPTION_VAR_DATE + "}&stockNo=2330"
 
         try:
             _date_urls = MessageQueueURLProducer(role=self.source_role(), base=_target_url, start="20220601", end="20220603", formatter="yyyymmdd")
