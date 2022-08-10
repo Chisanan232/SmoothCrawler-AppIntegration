@@ -2,6 +2,10 @@ from pathlib import Path
 import os
 
 
+# Target URL domain
+# TARGET_URL_DOMAIN = os.getenv("PYTEST_TARGET_URL_DOMAIN", "https://www.twse.com.tw")    # For testing with internet
+TARGET_URL_DOMAIN = os.getenv("PYTEST_TARGET_URL_DOMAIN", "http://127.0.0.1:12345")    # For testing in localhost ONLY (without internet)
+
 # For file based settings
 Test_CSV_File_Path: str = str(Path("./for_testing.csv"))
 Test_XLSX_File_Path: str = str(Path("./for_testing.xlsx"))
