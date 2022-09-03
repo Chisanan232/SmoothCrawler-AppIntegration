@@ -97,7 +97,6 @@ jobs:
     uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/organize_and_generate_test_cov_reports.yaml@v2
     with:
       test_type: integration-test
-      generate_xml_report_finally: false
 
 
   codecov_finish:
