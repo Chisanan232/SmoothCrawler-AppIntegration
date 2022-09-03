@@ -62,7 +62,7 @@ jobs:
   run_integration-test:
 #    name: Run all integration test items. This testing would test the code with other resource or system to ensure the features work finely.
     needs: prep-testbed_integration-test
-    uses: ./.github/workflows/run_test_items_via_pytest.yaml@develop
+    uses: ./.github/workflows/run_test_items_via_pytest.yaml
     with:
       test_type: integration-test
       all_test_items_paths: ${{needs.prep-testbed_integration-test.outputs.all_test_items}}
