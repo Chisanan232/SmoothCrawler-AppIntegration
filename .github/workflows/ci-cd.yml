@@ -1,0 +1,228 @@
+name: smoothcrawler-appintegration ci/cd
+
+on:
+  push:
+    branches:
+      - "develop"
+      - "release"
+      - "release-**"
+      - "release/**"
+      - "master"
+    paths-ignore:
+      - "docs/**"
+      - "example/**"
+      - ".gitcommitrules"
+      - ".gitignore"
+      - ".readthedocs.yaml"
+      - "LICENSE"
+      - "README.md"
+
+  pull_request:
+    branches:
+      - "develop"
+      - "release"
+      - "release-**"
+      - "release/**"
+      - "master"
+    paths-ignore:
+      - "docs/**"
+      - "example/**"
+      - ".gitcommitrules"
+      - ".gitignore"
+      - ".readthedocs.yaml"
+      - "LICENSE"
+      - "README.md"
+
+jobs:
+  prep-testbed_unit-test:
+#    name: Prepare all unit test items
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/prepare_test_items.yaml@v2
+    with:
+      shell_path: scripts/ci/get-unit-test-paths.sh
+      shell_arg: unix
+
+
+  prep-testbed_integration-test:
+#    name: Prepare all integration test items
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/prepare_test_items.yaml@v2
+    with:
+      shell_path: scripts/ci/get-integration-test-paths.sh
+      shell_arg: unix
+
+
+  run_unit-test:
+#    name: Run all unit test items
+    needs: prep-testbed_unit-test
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/run_test_items_via_pytest.yaml@v2
+    with:
+      test_type: unit-test
+      all_test_items_paths: ${{needs.prep-testbed_unit-test.outputs.all_test_items}}
+
+
+  run_integration-test:
+#    name: Run all integration test items. This testing would test the code with other resource or system to ensure the features work finely.
+    needs: prep-testbed_integration-test
+    env:
+      # The environment variables for integration test.
+      PYTEST_TARGET_URL_DOMAIN: http://127.0.0.1:12345
+      PYTEST_KAFKA_IP: 127.0.0.1
+      PYTEST_RABBITMQ_HOST: 127.0.0.1:5672
+#      PYTEST_RABBITMQ_VIRTUAL_HOST: /
+#      PYTEST_RABBITMQ_USERNAME: user
+#      PYTEST_RABBITMQ_PASSWORD: password
+      PYTEST_ACTIVEMQ_HOST: 127.0.0.1:61613
+
+    services:
+      # Zookeeper is necessary for Kafka.
+      pytest_zookeeper:
+        image: zookeeper:latest
+        ports:
+          - 2181:2181
+          - 2888:2888
+          - 3888:3888
+          - 7010:7010
+        options: >-
+          --health-cmd="/apache-zookeeper-3.8.0-bin/bin/zkServer.sh status"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+      # Test message queue features with Kafka
+      pytest_mq_kafka:
+        image: wurstmeister/kafka:2.13-2.7.0
+        env:
+          KAFKA_BROKER_ID: 0
+          KAFKA_ZOOKEEPER_CONNECT: 127.0.0.1:2181
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
+          KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+        ports:
+          - 9092:9092
+        options: >-
+          --health-cmd="/opt/kafka_2.13-2.7.0/bin/kafka-broker-api-versions.sh --bootstrap-server 127.0.0.1:9092 --version"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+      # Test message queue features with RabbitMQ
+      pytest_mq_rabbitmq:
+        image: rabbitmq:3.9.20
+        env:
+          RABBITMQ_DEFAULT_USER: user
+          RABBITMQ_DEFAULT_PASS: password
+        ports:
+          - 5671:5671
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd="rabbitmqctl status"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+      # Test message queue features with ActiveMQ
+      pytest_mq_activemq:
+        image: rmohr/activemq:5.15.9
+        ports:
+          - 61613:61613
+          - 8161:8161
+        options: >-
+          --health-cmd="/opt/apache-activemq-5.15.9/bin/activemq list"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/run_test_items_via_pytest.yaml@v2
+    with:
+      test_type: integration-test
+      all_test_items_paths: ${{needs.prep-testbed_integration-test.outputs.all_test_items}}
+      setup_http_server: true
+      http_server_host: 0.0.0.0
+      http_server_port: 12345
+      http_server_app_module: test._http_server.app
+      http_server_enter_point: app
+
+
+  unit-test_codecov:
+#    name: Organize and generate the testing report and upload it to Codecov
+    needs: run_unit-test
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/organize_and_generate_test_cov_reports.yaml@v2
+    with:
+      test_type: unit-test
+      generate_xml_report_finally: false
+
+
+  integration-test_codecov:
+#    name: Organize and generate the testing report and upload it to Codecov
+    needs: run_integration-test
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/organize_and_generate_test_cov_reports.yaml@v2
+    with:
+      test_type: integration-test
+      generate_xml_report_finally: false
+
+
+  codecov_finish:
+#    name: Organize and generate the testing report and upload it to Codecov
+    needs: [unit-test_codecov, integration-test_codecov]
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/upload_test_cov_report.yaml@v2
+    secrets:
+      codecov_token: ${{ secrets.CODECOV_TOKEN }}
+    with:
+      test_type: unit-test
+      upload-to-codecov: true
+      codecov_flags: unit,integration  # Required if 'upload-to-codecov' is true
+      codecov_name: smoothcrawler-appintegration_test  # Required if 'upload-to-codecov' is true
+
+
+  codacy_finish:
+#    name: Upload test report to Codacy to analyse and record code quality
+    needs: [unit-test_codecov, integration-test_codecov]
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/upload_test_cov_report.yaml@v2
+    secrets:
+      codacy_token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+    with:
+      test_type: unit-test
+      upload-to-codacy: true
+
+
+#  pre-building_check:
+##    name: Check about it could work finely by installing the Python package with setup.py file
+#    needs: [codecov_finish, codacy_finish]
+#    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/upload_code_report_to_codacy.yaml
+#    with:
+#      python_package_name: smoothcrawler
+#      test_import_package_code_1: import smoothcrawler as mr
+#      test_import_package_code_2: from smoothcrawler.crawler import SimpleCrawler
+#      test_import_package_code_3: from smoothcrawler.components.data import BaseHTTPResponseParser, BaseDataHandler
+#      test_python_script: ./scripts/test_crawler.py
+
+
+  build_git-tag_and_create_github-release:
+#    name: Build git tag and GitHub release if it needs
+    needs: [codecov_finish, codacy_finish]
+    if: ${{ github.ref_name == 'master' && github.event_name == 'push' }}
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/build_git-tag_and_create_github-release.yaml@v2
+    secrets:
+      github_auth_token: ${{ secrets.GITHUB_TOKEN }}
+    with:
+      project_type: python-package
+      project_name: smoothcrawler_appintegration
+      software_version_format: general-3
+
+
+  fake_build_pkg_and_push_to_pypi:
+#    name: Check about it could work finely by installing the Python package with setup.py file
+    needs: build_git-tag_and_create_github-release
+    if: ${{ github.ref_name == 'master' && 
+                github.event_name == 'push' && 
+                needs.test_build_git-tag_and_create_github-release.outputs.github-action_reusable_workflow_release_version != 'Pre-Release' }}
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TYPE: ${{ needs.build_git-tag_and_create_github-release.outputs.python_release_version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: For testing about getting the software version info
+        run: | 
+          echo "🐍📦 Release version: $RELEASE_TYPE"
+
