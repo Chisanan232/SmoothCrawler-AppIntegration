@@ -62,6 +62,16 @@ jobs:
   run_integration-test:
 #    name: Run all integration test items. This testing would test the code with other resource or system to ensure the features work finely.
     needs: prep-testbed_integration-test
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/run_test_items_via_pytest.yaml@v2
+    with:
+      test_type: integration-test
+      all_test_items_paths: ${{needs.prep-testbed_integration-test.outputs.all_test_items}}
+      setup_http_server: true
+      http_server_host: 0.0.0.0
+      http_server_port: 12345
+      http_server_app_module: test._http_server.app
+      http_server_enter_point: app
+
     env:
       # The environment variables for integration test.
       PYTEST_TARGET_URL_DOMAIN: http://127.0.0.1:12345
@@ -71,15 +81,7 @@ jobs:
 #      PYTEST_RABBITMQ_USERNAME: user
 #      PYTEST_RABBITMQ_PASSWORD: password
       PYTEST_ACTIVEMQ_HOST: 127.0.0.1:61613
-    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/run_test_items_via_pytest.yaml@v2
-#    with:
-#      test_type: integration-test
-#      all_test_items_paths: ${{needs.prep-testbed_integration-test.outputs.all_test_items}}
-#      setup_http_server: true
-#      http_server_host: 0.0.0.0
-#      http_server_port: 12345
-#      http_server_app_module: test._http_server.app
-#      http_server_enter_point: app
+
     services:
       # Zookeeper is necessary for Kafka.
       pytest_zookeeper:
