@@ -39,7 +39,8 @@ check_connection() {
 }
 
 echo "👨‍⚕️🔬 Start to check Zookeeper connection ..."
-check_connection "Zookeeper" "$kafka_ip" 2181
+zookeeper_ip=127.0.0.1
+check_connection "Zookeeper" "$zookeeper_ip" 2181
 
 echo "👨‍⚕️🔬 Start to check Kafka connection ..."
 kafka_ip=$PYTEST_KAFKA_IP
