@@ -23,25 +23,39 @@ getalltests() {
     then
         if echo "$1" | grep -q "with_filebased";
         then
-            role_and_task_with_filebased_tests=("${alltestpaths[@]}")
+            # shellcheck disable=SC2124
+            # shellcheck disable=SC2178
+            role_and_task_with_filebased_tests=${alltestpaths[@]}
         elif echo "$1" | grep -q "with_directconnect";
         then
-            role_and_task_with_directconnect_tests=("${alltestpaths[@]}")
+            # shellcheck disable=SC2124
+            # shellcheck disable=SC2178
+            role_and_task_with_directconnect_tests=${alltestpaths[@]}
         elif echo "$1" | grep -q "with_shareddatabase";
         then
-            role_and_task_with_shareddatabase_tests=("${alltestpaths[@]}")
+            # shellcheck disable=SC2124
+            # shellcheck disable=SC2178
+            role_and_task_with_shareddatabase_tests=${alltestpaths[@]}
         elif echo "$1" | grep -q "with_messagequeue";
         then
-            role_and_task_with_messagequeue_tests=("${alltestpaths[@]}")
+            # shellcheck disable=SC2124
+            # shellcheck disable=SC2178
+            role_and_task_with_messagequeue_tests=${alltestpaths[@]}
         fi
     elif echo "$1" | grep -q "url";
     then
-        url_tests=("${alltestpaths[@]}")
+        # shellcheck disable=SC2124
+        # shellcheck disable=SC2178
+        url_tests=${alltestpaths[@]}
     elif echo "$1" | grep -q "crawler";
     then
-        crawler_tests=("${alltestpaths[@]}")
+        # shellcheck disable=SC2124
+        # shellcheck disable=SC2178
+        crawler_tests=${alltestpaths[@]}
     else
-        base_tests=("${alltestpaths[@]}")
+        # shellcheck disable=SC2124
+        # shellcheck disable=SC2178
+        base_tests=${alltestpaths[@]}
     fi
 }
 
@@ -61,14 +75,21 @@ getalltests $role_with_shareddatabase_task_path
 getalltests $role_with_messagequeue_task_path
 getalltests $crawler_path
 
-dest=( "${base_tests[@]}
-            ${url_tests[@]}
-            ${role_and_task_with_filebased_tests[@]}
-            ${role_and_task_with_directconnect_tests[@]}
-            ${role_and_task_with_shareddatabase_tests[@]}
-            ${role_and_task_with_messagequeue_tests[@]}
-            ${crawler_tests[@]}" )
+#dest=( "${base_tests[@]}
+#            ${url_tests[@]}
+#            ${role_and_task_with_filebased_tests[@]}
+#            ${role_and_task_with_directconnect_tests[@]}
+#            ${role_and_task_with_shareddatabase_tests[@]}
+#            ${role_and_task_with_messagequeue_tests[@]}
+#            ${crawler_tests[@]}" )
 
+dest=( "${base_tests[@]}"`
+        `" ${url_tests[@]}"`
+        `" ${role_and_task_with_filebased_tests[@]}"`
+        `" ${role_and_task_with_directconnect_tests[@]}"`
+        `" ${role_and_task_with_shareddatabase_tests[@]}"`
+        `" ${role_and_task_with_messagequeue_tests[@]}"`
+        `" ${crawler_tests[@]}" )
 
 if echo "$runtime_os" | grep -q "windows";
 then

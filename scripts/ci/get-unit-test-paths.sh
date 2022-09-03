@@ -18,15 +18,23 @@ getalltests() {
 
     if echo "$1" | grep -q "task";
     then
-        task_tests=("${alltestpaths[@]}")
+        # shellcheck disable=SC2124
+        # shellcheck disable=SC2178
+        task_tests=${alltestpaths[@]}
     elif echo "$1" | grep -q "role";
     then
-        role_tests=("${alltestpaths[@]}")
+        # shellcheck disable=SC2124
+        # shellcheck disable=SC2178
+        role_tests=${alltestpaths[@]}
     elif echo "$1" | grep -q "utils" | grep -q "file";
     then
-        utils_file_tests=("${alltestpaths[@]}")
+        # shellcheck disable=SC2124
+        # shellcheck disable=SC2178
+        utils_file_tests=${alltestpaths[@]}
     else
-        init_tests=("${alltestpaths[@]}")
+        # shellcheck disable=SC2124
+        # shellcheck disable=SC2178
+        init_tests=${alltestpaths[@]}
     fi
 }
 
