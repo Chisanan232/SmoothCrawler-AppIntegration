@@ -71,35 +71,6 @@ on:
 jobs:
   run_test_items:
     if: ${{ inputs.debug_mode == false }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        python-version: [3.6,3.7,3.8,3.9,'3.10']
-        os: [ubuntu-18.04,ubuntu-20.04,ubuntu-22.04,macos-10.15,macos-11,macos-12]
-        exclude:
-          - os: ubuntu-18.04
-            python-version: 3.6
-          - os: ubuntu-18.04
-            python-version: 3.9
-          - os: ubuntu-18.04
-            python-version: '3.10'
-          - os: ubuntu-20.04
-            python-version: 3.8
-          - os: ubuntu-20.04
-            python-version: 3.9
-          - os: ubuntu-22.04
-            python-version: 3.6
-          - os: macos-10.15
-            python-version: 3.6
-          - os: macos-10.15
-            python-version: 3.8
-          - os: macos-11
-            python-version: 3.6
-          - os: macos-11
-            python-version: 3.9
-          - os: macos-12
-            python-version: 3.6
-        test-path: ${{fromJson(inputs.all_test_items_paths)}}
 
     services:
       # Zookeeper is necessary for Kafka.
@@ -159,6 +130,36 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: [3.6,3.7,3.8,3.9,'3.10']
+        os: [ubuntu-18.04,ubuntu-20.04,ubuntu-22.04,macos-10.15,macos-11,macos-12]
+        exclude:
+          - os: ubuntu-18.04
+            python-version: 3.6
+          - os: ubuntu-18.04
+            python-version: 3.9
+          - os: ubuntu-18.04
+            python-version: '3.10'
+          - os: ubuntu-20.04
+            python-version: 3.8
+          - os: ubuntu-20.04
+            python-version: 3.9
+          - os: ubuntu-22.04
+            python-version: 3.6
+          - os: macos-10.15
+            python-version: 3.6
+          - os: macos-10.15
+            python-version: 3.8
+          - os: macos-11
+            python-version: 3.6
+          - os: macos-11
+            python-version: 3.9
+          - os: macos-12
+            python-version: 3.6
+        test-path: ${{fromJson(inputs.all_test_items_paths)}}
 
     steps:
       - uses: actions/checkout@v2
