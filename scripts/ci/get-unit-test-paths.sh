@@ -9,6 +9,7 @@ declare -a role_tests
 declare -a utils_file_tests
 
 getalltests() {
+    # shellcheck disable=SC2207
     declare -a testpatharray=( $(ls -F "$1" | grep -v '/$' | grep -v '__init__.py' | grep -v 'test_config.py' | grep -v -E '^_[a-z_]{1,64}.py' | grep -v '__pycache__'))
 
     declare -a alltestpaths
