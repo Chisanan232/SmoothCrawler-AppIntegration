@@ -13,6 +13,9 @@ if [ "$sleep_time" == "" ]; then
     sleep_time=5
 fi
 
+env_file_path=$3
+bash scripts/ci/export_env-vars.sh "$env_file_path"
+
 declare IP_Address
 declare Port
 split_host_to_ip_and_port() {
