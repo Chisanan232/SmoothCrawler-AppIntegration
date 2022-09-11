@@ -195,7 +195,7 @@ jobs:
           echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
           echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
           echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
-          bash scripts/ci/check_msg_sys_connection.sh
+          bash scripts/ci/check_msg_sys_connection.sh 10 10
 
       - name: Install Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -329,7 +329,7 @@ jobs:
           echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
           echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
           echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
-          bash scripts/ci/check_msg_sys_connection.sh
+          bash scripts/ci/check_msg_sys_connection.sh 10 10
 
       - name: Install Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
