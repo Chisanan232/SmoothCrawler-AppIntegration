@@ -7,11 +7,11 @@ set -ex
 ##   . ./export-env.sh ; echo ${MINIENTREGA_FECHALIMITE}
 
 runtime_os=$1
-if echo "$runtime_os" | grep -q 'ubuntu'; then
+if echo "$runtime_os" | grep -q 'Linux'; then
 
   export $(grep -v '^#' .env | xargs -d '\n')
 
-elif echo "$runtime_os" | grep -q 'macos'; then
+elif echo "$runtime_os" | grep -q 'macOS'; then
 
   export $(grep -v '^#' .env | xargs -0)
 
