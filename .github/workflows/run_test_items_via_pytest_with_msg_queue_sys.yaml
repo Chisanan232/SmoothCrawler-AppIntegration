@@ -261,6 +261,7 @@ jobs:
           - 7010:7010
         options: >-
           --name zookeeper
+          --ip 172.18.0.2
           --health-cmd="/apache-zookeeper-3.8.0-bin/bin/zkServer.sh status"
           --health-interval=10s
           --health-timeout=5s
@@ -271,7 +272,7 @@ jobs:
         image: wurstmeister/kafka:2.13-2.7.0
         env:
           KAFKA_BROKER_ID: 0
-          KAFKA_ZOOKEEPER_CONNECT: 127.0.0.1:2181
+          KAFKA_ZOOKEEPER_CONNECT: 172.18.0.2:2181
           KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
           KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
         ports:
