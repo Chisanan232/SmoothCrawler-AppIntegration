@@ -182,8 +182,7 @@ jobs:
 
       - name: Wait for the message queue system (Kafka, RabbitMQ, ActiveMQ) to be ready for running test
         run: |
-          bash scripts/ci/export_env-vars.sh ${{ inputs.env_file }}
-          bash scripts/ci/check_msg_sys_connection.sh 10 10
+          bash scripts/ci/check_msg_sys_connection.sh 10 10 ${{ inputs.env_file }}
 
       - name: Install Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -207,9 +206,10 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          bash scripts/ci/export_env-vars.sh ${{ inputs.env_file }}
-          pytest ${{ matrix.test-path }}
+          bash scripts/ci/run_pytest_with_env-vars.sh ${{ matrix.test-path }} ${{ inputs.env_file }}
         continue-on-error: true
+#          bash scripts/ci/export_env-vars.sh ${{ inputs.env_file }}
+#          pytest ${{ matrix.test-path }}
 
       - name: Rename the code coverage result file
         run: mv ./.coverage ./.coverage.${{ inputs.test_type }}.${{ matrix.os }}-${{ matrix.python-version }}
@@ -309,8 +309,7 @@ jobs:
 
       - name: Wait for the message queue system (Kafka, RabbitMQ, ActiveMQ) to be ready for running test
         run: |
-          bash scripts/ci/export_env-vars.sh ${{ inputs.env_file }}
-          bash scripts/ci/check_msg_sys_connection.sh 10 10
+          bash scripts/ci/check_msg_sys_connection.sh 10 10 ${{ inputs.env_file }}
 
       - name: Install Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -334,9 +333,11 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          bash scripts/ci/export_env-vars.sh ${{ inputs.env_file }}
-          pytest ${{ matrix.test-path }}
+          bash scripts/ci/run_pytest_with_env-vars.sh ${{ matrix.test-path }} ${{ inputs.env_file }}
         continue-on-error: true
+#          bash scripts/ci/export_env-vars.sh ${{ inputs.env_file }}
+#          pytest ${{ matrix.test-path }}
+
 #          echo "Set environment variables ..."
 #          set -o allexport
 #          source ${{ inputs.env_file }}
