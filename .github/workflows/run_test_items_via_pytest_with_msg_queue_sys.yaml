@@ -178,7 +178,7 @@ jobs:
 
       - name: Wait for the message queue system (Kafka, RabbitMQ, ActiveMQ) to be ready for running test
         run: |
-#          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
+          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
           set -o allexport
           source ${{ inputs.env_file }}
           echo "For checking ..."
