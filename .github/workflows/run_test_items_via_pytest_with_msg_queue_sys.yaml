@@ -178,7 +178,9 @@ jobs:
 
       - name: Wait for the message queue system (Kafka, RabbitMQ, ActiveMQ) to be ready for running test
         run: |
-          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
+#          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
+          set -o allexport
+          source ${{ inputs.env_file }}
           echo "For checking ..."
           echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
           echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
@@ -208,7 +210,9 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
+#          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
+          set -o allexport
+          source ${{ inputs.env_file }}
           echo "For checking ..."
           echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
           echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
@@ -301,7 +305,9 @@ jobs:
 
       - name: Wait for the message queue system (Kafka, RabbitMQ, ActiveMQ) to be ready for running test
         run: |
-          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
+#          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
+          set -o allexport
+          source ${{ inputs.env_file }}
           echo "For checking ..."
           echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
           echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
@@ -331,7 +337,9 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
+#          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
+          set -o allexport
+          source ${{ inputs.env_file }}
           echo "For checking ..."
           echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
           echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
