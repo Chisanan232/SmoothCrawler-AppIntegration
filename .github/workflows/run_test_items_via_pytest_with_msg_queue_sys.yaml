@@ -207,7 +207,14 @@ jobs:
         run: curl "http://${{ inputs.http_server_host }}:${{ inputs.http_server_port }}/exchangeReport/STOCK_DAY?response=json&date=20170101&stockNo=2331"
 
       - name: Run tests with pytest
-        run: pytest ${{ matrix.test-path }}
+        run: |
+          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
+          echo "For checking ..."
+          echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
+          echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
+          echo "PYTEST_RABBITMQ_HOST: $PYTEST_RABBITMQ_HOST"
+          echo "PYTEST_ACTIVEMQ_HOST: $PYTEST_ACTIVEMQ_HOST"
+          pytest ${{ matrix.test-path }}
         continue-on-error: true
 
       - name: Rename the code coverage result file
@@ -292,6 +299,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Wait for the message queue system (Kafka, RabbitMQ, ActiveMQ) to be ready for running test
+        run: |
+          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
+          echo "For checking ..."
+          echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
+          echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
+          echo "PYTEST_RABBITMQ_HOST: $PYTEST_RABBITMQ_HOST"
+          echo "PYTEST_ACTIVEMQ_HOST: $PYTEST_ACTIVEMQ_HOST"
+          bash scripts/ci/check_msg_sys_connection.sh
+
       - name: Install Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
@@ -313,7 +330,14 @@ jobs:
         run: curl "http://${{ inputs.http_server_host }}:${{ inputs.http_server_port }}/exchangeReport/STOCK_DAY?response=json&date=20170101&stockNo=2331"
 
       - name: Run tests with pytest
-        run: pytest ${{ matrix.test-path }}
+        run: |
+          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
+          echo "For checking ..."
+          echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
+          echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
+          echo "PYTEST_RABBITMQ_HOST: $PYTEST_RABBITMQ_HOST"
+          echo "PYTEST_ACTIVEMQ_HOST: $PYTEST_ACTIVEMQ_HOST"
+          pytest ${{ matrix.test-path }}
         continue-on-error: true
 
       - name: Rename the code coverage result file
