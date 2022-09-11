@@ -33,16 +33,6 @@ on:
       - "LICENSE"
       - "README.md"
 
-#env:
-#  # The environment variables for integration test.
-#  PYTEST_TARGET_URL_DOMAIN: http://127.0.0.1:12345
-#  PYTEST_KAFKA_IP: 127.0.0.1
-#  PYTEST_RABBITMQ_HOST: 127.0.0.1:5672
-##      PYTEST_RABBITMQ_VIRTUAL_HOST: /
-##      PYTEST_RABBITMQ_USERNAME: user
-##      PYTEST_RABBITMQ_PASSWORD: password
-#  PYTEST_ACTIVEMQ_HOST: 127.0.0.1:61613
-
 jobs:
   prep-testbed_unit-test:
 #    name: Prepare all unit test items
@@ -81,7 +71,6 @@ jobs:
       http_server_port: 12345
       http_server_app_module: test._http_server.app
       http_server_enter_point: app
-      debug_mode: true
 
 
   unit-test_codecov:
