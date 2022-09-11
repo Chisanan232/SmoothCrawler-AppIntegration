@@ -170,7 +170,7 @@ jobs:
 
       - name: Set the environment variables for testing
         run: |
-          bash scripts/ci/export_env.sh ${{ runner.os }}
+          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
           echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
           echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
           echo "PYTEST_RABBITMQ_HOST: $PYTEST_RABBITMQ_HOST"
