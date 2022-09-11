@@ -172,25 +172,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set the environment variables for testing
+      - name: Check the IP address of Zookeeper service is expected
         run: |
-          set -o allexport
-          source ${{ inputs.env_file }}
-          echo "$PYTEST_TARGET_URL_DOMAIN"
-          echo "$PYTEST_KAFKA_IP"
-          echo "$PYTEST_RABBITMQ_HOST"
-          echo "$PYTEST_ACTIVEMQ_HOST"
+          echo "👨🏽‍🌾 Zookeeper IP address: "
+          /usr/bin/docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' zookeeper
+          
+          echo "Start to check ... "
+          bash scripts/ci/check_zookeeper-ip.sh
 
       - name: Wait for the message queue system (Kafka, RabbitMQ, ActiveMQ) to be ready for running test
         run: |
-          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
-          set -o allexport
-          source ${{ inputs.env_file }}
-          echo "For checking ..."
-          echo "PYTEST_TARGET_URL_DOMAIN - $PYTEST_TARGET_URL_DOMAIN"
-          echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
-          echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
-          echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
+          bash scripts/ci/export_env-vars.sh ${{ inputs.env_file }}
           bash scripts/ci/check_msg_sys_connection.sh 10 10
 
       - name: Install Python ${{ matrix.python-version }}
@@ -215,16 +207,9 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          set -o allexport
-          source ${{ inputs.env_file }}
-          echo "For checking ..."
-          echo "PYTEST_TARGET_URL_DOMAIN - $PYTEST_TARGET_URL_DOMAIN"
-          echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
-          echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
-          echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
+          bash scripts/ci/export_env-vars.sh ${{ inputs.env_file }}
           pytest ${{ matrix.test-path }}
         continue-on-error: true
-#          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
 
       - name: Rename the code coverage result file
         run: mv ./.coverage ./.coverage.${{ inputs.test_type }}.${{ matrix.os }}-${{ matrix.python-version }}
@@ -322,22 +307,10 @@ jobs:
           echo "Start to check ... "
           bash scripts/ci/check_zookeeper-ip.sh
 
-      - name: Set the environment variables for testing 2
+      - name: Wait for the message queue system (Kafka, RabbitMQ, ActiveMQ) to be ready for running test
         run: |
-          set -o allexport
-          source ${{ inputs.env_file }}
-          echo "For checking ..."
-          echo "PYTEST_TARGET_URL_DOMAIN - $PYTEST_TARGET_URL_DOMAIN"
-          echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
-          echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
-          echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
-
-      - name: Set the environment variables for testing 2
-        run: |
-          echo "$PYTEST_TARGET_URL_DOMAIN"
-          echo "$PYTEST_KAFKA_IP"
-          echo "$PYTEST_RABBITMQ_HOST"
-          echo "$PYTEST_ACTIVEMQ_HOST"
+          bash scripts/ci/export_env-vars.sh ${{ inputs.env_file }}
+          bash scripts/ci/check_msg_sys_connection.sh 10 10
 
       - name: Install Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -361,13 +334,17 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          set -o allexport
-          source ${{ inputs.env_file }}
-          echo "For checking ..."
-          echo "PYTEST_TARGET_URL_DOMAIN - $PYTEST_TARGET_URL_DOMAIN"
-          echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
-          echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
-          echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
+#          echo "Set environment variables ..."
+#          set -o allexport
+#          source ${{ inputs.env_file }}
+#          echo "✅ Set environment variables successfully!"
+#          echo "For checking ..."
+#          echo "PYTEST_TARGET_URL_DOMAIN - $PYTEST_TARGET_URL_DOMAIN"
+#          echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
+#          echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
+#          echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
+#          echo "For checking ..."
+          bash scripts/ci/export_env-vars.sh ${{ inputs.env_file }}
           pytest ${{ matrix.test-path }}
         continue-on-error: true
 
