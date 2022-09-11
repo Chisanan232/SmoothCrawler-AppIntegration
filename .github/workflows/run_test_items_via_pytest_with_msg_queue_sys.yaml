@@ -13,6 +13,7 @@
 #     * http_server_app_module: The module path of HTTP server.
 #     * http_server_enter_point: The object about the web application.
 #     * debug_mode: For debug, so it's matrix would one has os: ubuntu-22.04 & python-version: '3.10'.
+#     * env_file: The .env format file path. CI process would load and set this value in the current runtime environment to use.
 #
 # Workflow running output:
 #     No, but it would save the testing coverage reports to provide after-process to organize and record.
@@ -66,6 +67,11 @@ on:
         type: boolean
         required: false
         default: false
+      env_file:
+        description: "The .env format file path. CI process would load and set this value in the current runtime environment to use."
+        type: string
+        required: false
+        default: ./.github/ci-config/testing.env
 
 
 jobs:
@@ -162,8 +168,22 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Set the environment variables for testing
+        run: |
+          bash scripts/ci/export_env.sh ${{ runner.os }}
+          echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
+          echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
+          echo "PYTEST_RABBITMQ_HOST: $PYTEST_RABBITMQ_HOST"
+          echo "PYTEST_ACTIVEMQ_HOST: $PYTEST_ACTIVEMQ_HOST"
+
       - name: Wait for the message queue system (Kafka, RabbitMQ, ActiveMQ) to be ready for running test
-        run: bash scripts/ci/check_msg_sys_connection.sh
+        run: |
+          echo "For checking ..."
+          echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
+          echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
+          echo "PYTEST_RABBITMQ_HOST: $PYTEST_RABBITMQ_HOST"
+          echo "PYTEST_ACTIVEMQ_HOST: $PYTEST_ACTIVEMQ_HOST"
+          bash scripts/ci/check_msg_sys_connection.sh
 
       - name: Install Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
