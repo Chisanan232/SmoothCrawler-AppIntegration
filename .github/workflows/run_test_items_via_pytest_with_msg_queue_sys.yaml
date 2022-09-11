@@ -168,16 +168,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set the environment variables for testing
-        run: |
-          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
-          echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
-          echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
-          echo "PYTEST_RABBITMQ_HOST: $PYTEST_RABBITMQ_HOST"
-          echo "PYTEST_ACTIVEMQ_HOST: $PYTEST_ACTIVEMQ_HOST"
+#      - name: Set the environment variables for testing
+#        run: |
+#          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
+#          echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
+#          echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
+#          echo "PYTEST_RABBITMQ_HOST: $PYTEST_RABBITMQ_HOST"
+#          echo "PYTEST_ACTIVEMQ_HOST: $PYTEST_ACTIVEMQ_HOST"
 
       - name: Wait for the message queue system (Kafka, RabbitMQ, ActiveMQ) to be ready for running test
         run: |
+          bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
           echo "For checking ..."
           echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
           echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
