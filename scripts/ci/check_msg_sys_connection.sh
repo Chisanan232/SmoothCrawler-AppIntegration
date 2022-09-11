@@ -86,10 +86,10 @@ if [ "$Zookeeper_Health" != true ]; then
     echo "Zookeeper isn't ready for testing ..."
     UnHealth_History=false
 fi
-#if [ "$Kafka_Health" != true ]; then
-#    echo "Kafka isn't ready for testing ..."
-#    UnHealth_History=false
-#fi
+if [ "$Kafka_Health" != true ]; then
+    echo "Kafka isn't ready for testing ..."
+    UnHealth_History=false
+fi
 if [ "$RabbitMQ_Health" != true ]; then
     echo "RabbitMQ isn't ready for testing ..."
     UnHealth_History=false
