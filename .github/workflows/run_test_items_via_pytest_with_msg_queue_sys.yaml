@@ -322,9 +322,9 @@ jobs:
         run: |
           /usr/bin/docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' zookeeper
 
-      - name: For debug process - logs -f
-        run: |
-          /usr/bin/docker logs -f pytest_mq_kafka
+#      - name: For debug process - logs -f
+#        run: |
+#          /usr/bin/docker logs -f pytest_mq_kafka
 
       - name: Set the environment variables for testing
         run: |
