@@ -34,14 +34,6 @@ check_connection() {
         nc -z "$_service_ip" "$_service_port" && echo "✅ 🎊 Success" && System_Health=true && return 1
         echo -n .
         sleep "$sleep_time"
-#        nc_result=$(nc -z "$_service_ip" "$_service_port")
-#        if echo "$nc_result" | grep -q "succeeded"; then
-#            echo "✅ 🎊 Success" && System_Health=true
-#        else
-##            echo "The service isn't ready, it would sleep for $sleep_time seconds for waiting ..."
-#            echo -n .
-#            sleep "$sleep_time"
-#        fi
     done
     echo "❌ 🚫 Failed waiting for $_service_name" && System_Health=false
 }
