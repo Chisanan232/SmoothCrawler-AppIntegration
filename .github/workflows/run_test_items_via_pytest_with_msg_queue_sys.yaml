@@ -182,7 +182,17 @@ jobs:
 
       - name: Wait for the message queue system (Kafka, RabbitMQ, ActiveMQ) to be ready for running test
         run: |
-          bash scripts/ci/check_msg_sys_connection.sh 10 10 ${{ inputs.env_file }}
+          echo "Set environment variables ..."
+          set -o allexport
+          source ${{ inputs.env_file }}
+          echo "PYTEST_TARGET_URL_DOMAIN - $PYTEST_TARGET_URL_DOMAIN"
+          echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
+          echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
+          echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
+          echo "✅ Set environment variables successfully!"
+
+          echo "Start to check message queue system connection ..."
+          bash scripts/ci/check_msg_sys_connection.sh 10 10
 
       - name: Install Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -206,10 +216,18 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          bash scripts/ci/run_pytest_with_env-vars.sh ${{ matrix.test-path }} ${{ inputs.env_file }}
+          echo "Set environment variables ..."
+          set -o allexport
+          source ${{ inputs.env_file }}
+          echo "PYTEST_TARGET_URL_DOMAIN - $PYTEST_TARGET_URL_DOMAIN"
+          echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
+          echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
+          echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
+          echo "✅ Set environment variables successfully!"
+
+          echo "Start to run PyTest ..."
+          pytest ${{ matrix.test-path }}
         continue-on-error: true
-#          bash scripts/ci/export_env-vars.sh ${{ inputs.env_file }}
-#          pytest ${{ matrix.test-path }}
 
       - name: Rename the code coverage result file
         run: mv ./.coverage ./.coverage.${{ inputs.test_type }}.${{ matrix.os }}-${{ matrix.python-version }}
@@ -309,7 +327,17 @@ jobs:
 
       - name: Wait for the message queue system (Kafka, RabbitMQ, ActiveMQ) to be ready for running test
         run: |
-          bash scripts/ci/check_msg_sys_connection.sh 10 10 ${{ inputs.env_file }}
+          echo "Set environment variables ..."
+          set -o allexport
+          source ${{ inputs.env_file }}
+          echo "PYTEST_TARGET_URL_DOMAIN - $PYTEST_TARGET_URL_DOMAIN"
+          echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
+          echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
+          echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
+          echo "✅ Set environment variables successfully!"
+
+          echo "Start to check message queue system connection ..."
+          bash scripts/ci/check_msg_sys_connection.sh 10 10
 
       - name: Install Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -333,7 +361,17 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          bash scripts/ci/run_pytest_with_env-vars.sh ${{ matrix.test-path }} ${{ inputs.env_file }}
+          echo "Set environment variables ..."
+          set -o allexport
+          source ${{ inputs.env_file }}
+          echo "PYTEST_TARGET_URL_DOMAIN - $PYTEST_TARGET_URL_DOMAIN"
+          echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
+          echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
+          echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
+          echo "✅ Set environment variables successfully!"
+
+          echo "Start to run PyTest ..."
+          pytest ${{ matrix.test-path }}
         continue-on-error: true
 #          bash scripts/ci/export_env-vars.sh ${{ inputs.env_file }}
 #          pytest ${{ matrix.test-path }}
