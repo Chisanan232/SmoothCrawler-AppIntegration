@@ -278,8 +278,8 @@ jobs:
         options: >-
           --health-cmd="/opt/kafka_2.13-2.7.0/bin/kafka-broker-api-versions.sh --bootstrap-server 127.0.0.1:9092 --version"
           --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
+          --health-timeout=10s
+          --health-retries=5
 
       # Test message queue features with RabbitMQ
       pytest_mq_rabbitmq:
