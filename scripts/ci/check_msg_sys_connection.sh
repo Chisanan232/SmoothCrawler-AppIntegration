@@ -62,6 +62,7 @@ if [ "$System_Health" == true ]; then
     Kafka_Health=true
 fi
 
+
 echo "👨‍⚕️🔬 Start to check RabbitMQ connection ..."
 rabbitmq_host=$PYTEST_RABBITMQ_HOST
 split_host_to_ip_and_port "$rabbitmq_host"
@@ -85,10 +86,10 @@ if [ "$Zookeeper_Health" != true ]; then
     echo "Zookeeper isn't ready for testing ..."
     UnHealth_History=false
 fi
-if [ "$Kafka_Health" != true ]; then
-    echo "Kafka isn't ready for testing ..."
-    UnHealth_History=false
-fi
+#if [ "$Kafka_Health" != true ]; then
+#    echo "Kafka isn't ready for testing ..."
+#    UnHealth_History=false
+#fi
 if [ "$RabbitMQ_Health" != true ]; then
     echo "RabbitMQ isn't ready for testing ..."
     UnHealth_History=false
