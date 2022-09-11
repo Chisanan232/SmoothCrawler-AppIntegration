@@ -182,10 +182,10 @@ jobs:
           set -o allexport
           source ${{ inputs.env_file }}
           echo "For checking ..."
-          echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
-          echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
-          echo "PYTEST_RABBITMQ_HOST: $PYTEST_RABBITMQ_HOST"
-          echo "PYTEST_ACTIVEMQ_HOST: $PYTEST_ACTIVEMQ_HOST"
+          echo "PYTEST_TARGET_URL_DOMAIN - $PYTEST_TARGET_URL_DOMAIN"
+          echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
+          echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
+          echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
           bash scripts/ci/check_msg_sys_connection.sh
 
       - name: Install Python ${{ matrix.python-version }}
@@ -214,10 +214,10 @@ jobs:
           set -o allexport
           source ${{ inputs.env_file }}
           echo "For checking ..."
-          echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
-          echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
-          echo "PYTEST_RABBITMQ_HOST: $PYTEST_RABBITMQ_HOST"
-          echo "PYTEST_ACTIVEMQ_HOST: $PYTEST_ACTIVEMQ_HOST"
+          echo "PYTEST_TARGET_URL_DOMAIN - $PYTEST_TARGET_URL_DOMAIN"
+          echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
+          echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
+          echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
           pytest ${{ matrix.test-path }}
         continue-on-error: true
 
@@ -309,10 +309,10 @@ jobs:
           set -o allexport
           source ${{ inputs.env_file }}
           echo "For checking ..."
-          echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
-          echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
-          echo "PYTEST_RABBITMQ_HOST: $PYTEST_RABBITMQ_HOST"
-          echo "PYTEST_ACTIVEMQ_HOST: $PYTEST_ACTIVEMQ_HOST"
+          echo "PYTEST_TARGET_URL_DOMAIN - $PYTEST_TARGET_URL_DOMAIN"
+          echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
+          echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
+          echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
           bash scripts/ci/check_msg_sys_connection.sh
 
       - name: Install Python ${{ matrix.python-version }}
@@ -341,10 +341,10 @@ jobs:
           set -o allexport
           source ${{ inputs.env_file }}
           echo "For checking ..."
-          echo "PYTEST_TARGET_URL_DOMAIN: $PYTEST_TARGET_URL_DOMAIN"
-          echo "PYTEST_KAFKA_IP: $PYTEST_KAFKA_IP"
-          echo "PYTEST_RABBITMQ_HOST: $PYTEST_RABBITMQ_HOST"
-          echo "PYTEST_ACTIVEMQ_HOST: $PYTEST_ACTIVEMQ_HOST"
+          echo "PYTEST_TARGET_URL_DOMAIN - $PYTEST_TARGET_URL_DOMAIN"
+          echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
+          echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
+          echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
           pytest ${{ matrix.test-path }}
         continue-on-error: true
 
