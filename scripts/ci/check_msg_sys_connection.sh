@@ -32,7 +32,7 @@ check_connection() {
     for i in `seq 1 "$waiting_time"`;
     do
         nc -z "$_service_ip" "$_service_port" && echo "✅ 🎊 Success" && System_Health=true
-        echo "The service isn't ready, it would sleep for $sleep_time seconds for waiting ..."
+#        echo "The service isn't ready, it would sleep for $sleep_time seconds for waiting ..."
         echo -n .
         sleep "$sleep_time"
     done
