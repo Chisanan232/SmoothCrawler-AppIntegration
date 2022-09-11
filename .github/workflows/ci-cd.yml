@@ -81,6 +81,7 @@ jobs:
       http_server_port: 12345
       http_server_app_module: test._http_server.app
       http_server_enter_point: app
+      debug_mode: true
 
 
   unit-test_codecov:
