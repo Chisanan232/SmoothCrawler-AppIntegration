@@ -373,19 +373,6 @@ jobs:
           echo "Start to run PyTest ..."
           pytest ${{ matrix.test-path }}
         continue-on-error: true
-#          bash scripts/ci/export_env-vars.sh ${{ inputs.env_file }}
-#          pytest ${{ matrix.test-path }}
-
-#          echo "Set environment variables ..."
-#          set -o allexport
-#          source ${{ inputs.env_file }}
-#          echo "✅ Set environment variables successfully!"
-#          echo "For checking ..."
-#          echo "PYTEST_TARGET_URL_DOMAIN - $PYTEST_TARGET_URL_DOMAIN"
-#          echo "PYTEST_KAFKA_IP - $PYTEST_KAFKA_IP"
-#          echo "PYTEST_RABBITMQ_HOST - $PYTEST_RABBITMQ_HOST"
-#          echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
-#          echo "For checking ..."
 
       - name: Rename the code coverage result file
         run: mv ./.coverage ./.coverage.${{ inputs.test_type }}.${{ matrix.os }}-${{ matrix.python-version }}
