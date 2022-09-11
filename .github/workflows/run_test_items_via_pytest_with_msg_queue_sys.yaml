@@ -261,7 +261,6 @@ jobs:
           - 7010:7010
         options: >-
           --name zookeeper
-#          --ip 172.18.0.2
           --health-cmd="/apache-zookeeper-3.8.0-bin/bin/zkServer.sh status"
           --health-interval=10s
           --health-timeout=5s
