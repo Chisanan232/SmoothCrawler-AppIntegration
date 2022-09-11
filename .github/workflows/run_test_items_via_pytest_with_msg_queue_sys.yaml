@@ -268,6 +268,7 @@ jobs:
       # Test message queue features with Kafka
       pytest_mq_kafka:
         image: wurstmeister/kafka:2.13-2.7.0
+        name: pytest_mq_kafka
         env:
           KAFKA_BROKER_ID: 0
           KAFKA_ZOOKEEPER_CONNECT: 127.0.0.1:2181
