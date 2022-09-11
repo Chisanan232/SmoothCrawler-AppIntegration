@@ -312,6 +312,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: For debug process - container ps
+        run: |
+          /usr/bin/docker container ps -a
+
+      - name: For debug process - logs -f
+        run: |
+          /usr/bin/docker logs -f pytest_mq_kafka
+
       - name: Set the environment variables for testing
         run: |
           bash scripts/ci/export_env.sh ${{ runner.os }} ${{ inputs.env_file }}
@@ -362,6 +370,10 @@ jobs:
           echo "PYTEST_ACTIVEMQ_HOST - $PYTEST_ACTIVEMQ_HOST"
           pytest ${{ matrix.test-path }}
         continue-on-error: true
+
+      - name: For debug process - logs -f 2
+        run: |
+          /usr/bin/docker logs -f pytest_mq_kafka
 
       - name: Rename the code coverage result file
         run: mv ./.coverage ./.coverage.${{ inputs.test_type }}.${{ matrix.os }}-${{ matrix.python-version }}
