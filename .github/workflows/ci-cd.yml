@@ -1,0 +1,158 @@
+name: smoothcrawler-appintegration ci/cd
+
+on:
+  push:
+    branches:
+      - "develop"
+      - "release"
+      - "release-**"
+      - "release/**"
+      - "master"
+    paths-ignore:
+      - "docs/**"
+      - "example/**"
+      - ".gitcommitrules"
+      - ".gitignore"
+      - ".readthedocs.yaml"
+      - "LICENSE"
+      - "README.md"
+
+  pull_request:
+    branches:
+      - "develop"
+      - "release"
+      - "release-**"
+      - "release/**"
+      - "master"
+    paths-ignore:
+      - "docs/**"
+      - "example/**"
+      - ".gitcommitrules"
+      - ".gitignore"
+      - ".readthedocs.yaml"
+      - "LICENSE"
+      - "README.md"
+
+jobs:
+  prep-testbed_unit-test:
+#    name: Prepare all unit test items
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/prepare_test_items.yaml@v2
+    with:
+      shell_path: scripts/ci/get-unit-test-paths.sh
+      shell_arg: unix
+
+
+  prep-testbed_integration-test:
+#    name: Prepare all integration test items
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/prepare_test_items.yaml@v2
+    with:
+      shell_path: scripts/ci/get-integration-test-paths.sh
+      shell_arg: unix
+
+
+  run_unit-test:
+#    name: Run all unit test items
+    needs: prep-testbed_unit-test
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/run_test_items_via_pytest.yaml@v2
+    with:
+      test_type: unit-test
+      all_test_items_paths: ${{needs.prep-testbed_unit-test.outputs.all_test_items}}
+
+
+  run_integration-test:
+#    name: Run all integration test items. This testing would test the code with other resource or system to ensure the features work finely.
+    needs: prep-testbed_integration-test
+    uses: ./.github/workflows/run_test_items_via_pytest_with_msg_queue_sys.yaml
+    with:
+      test_type: integration-test
+      all_test_items_paths: ${{needs.prep-testbed_integration-test.outputs.all_test_items}}
+      setup_http_server: true
+      http_server_host: 0.0.0.0
+      http_server_port: 12345
+      http_server_app_module: test._http_server.app
+      http_server_enter_point: app
+      debug_mode: true
+
+
+  unit-test_codecov:
+#    name: Organize and generate the testing report and upload it to Codecov
+    needs: run_unit-test
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/organize_and_generate_test_cov_reports.yaml@v2
+    with:
+      test_type: unit-test
+
+
+  integration-test_codecov:
+#    name: Organize and generate the testing report and upload it to Codecov
+    needs: run_integration-test
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/organize_and_generate_test_cov_reports.yaml@v2
+    with:
+      test_type: integration-test
+
+
+  codecov_finish:
+#    name: Organize and generate the testing report and upload it to Codecov
+    needs: [unit-test_codecov, integration-test_codecov]
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/upload_test_cov_report.yaml@v2
+    secrets:
+      codecov_token: ${{ secrets.CODECOV_TOKEN }}
+    with:
+      test_type: all-test
+      upload-to-codecov: true
+      codecov_flags: unit,integration  # Required if 'upload-to-codecov' is true
+      codecov_name: smoothcrawler-appintegration_test  # Required if 'upload-to-codecov' is true
+
+
+  codacy_finish:
+#    name: Upload test report to Codacy to analyse and record code quality
+    needs: [unit-test_codecov, integration-test_codecov]
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/upload_test_cov_report.yaml@v2
+    secrets:
+      codacy_token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+    with:
+      test_type: all-test
+      upload-to-codacy: true
+
+
+#  pre-building_check:
+##    name: Check about it could work finely by installing the Python package with setup.py file
+#    needs: [codecov_finish, codacy_finish]
+#    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/upload_code_report_to_codacy.yaml
+#    with:
+#      python_package_name: smoothcrawler
+#      test_import_package_code_1: import smoothcrawler as mr
+#      test_import_package_code_2: from smoothcrawler.crawler import SimpleCrawler
+#      test_import_package_code_3: from smoothcrawler.components.data import BaseHTTPResponseParser, BaseDataHandler
+#      test_python_script: ./scripts/test_crawler.py
+
+
+  build_git-tag_and_create_github-release:
+#    name: Build git tag and GitHub release if it needs
+    needs: [codecov_finish, codacy_finish]
+    if: ${{ github.ref_name == 'master' && github.event_name == 'push' }}
+    uses: Chisanan232/GitHub-Action-Template-Python/.github/workflows/build_git-tag_and_create_github-release.yaml@v2
+    secrets:
+      github_auth_token: ${{ secrets.GITHUB_TOKEN }}
+    with:
+      project_type: python-package
+      project_name: smoothcrawler_appintegration
+      software_version_format: general-3
+
+
+  fake_build_pkg_and_push_to_pypi:
+#    name: Check about it could work finely by installing the Python package with setup.py file
+    needs: build_git-tag_and_create_github-release
+    if: ${{ github.ref_name == 'master' && 
+                github.event_name == 'push' && 
+                needs.test_build_git-tag_and_create_github-release.outputs.github-action_reusable_workflow_release_version != 'Pre-Release' }}
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TYPE: ${{ needs.build_git-tag_and_create_github-release.outputs.python_release_version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: For testing about getting the software version info
+        run: | 
+          echo "🐍📦 Release version: $RELEASE_TYPE"
+

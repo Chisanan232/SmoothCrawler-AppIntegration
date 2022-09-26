@@ -9,6 +9,7 @@ declare -a role_tests
 declare -a utils_file_tests
 
 getalltests() {
+    # shellcheck disable=SC2207
     declare -a testpatharray=( $(ls -F "$1" | grep -v '/$' | grep -v '__init__.py' | grep -v 'test_config.py' | grep -v -E '^_[a-z_]{1,64}.py' | grep -v '__pycache__'))
 
     declare -a alltestpaths
@@ -18,15 +19,23 @@ getalltests() {
 
     if echo "$1" | grep -q "task";
     then
-        task_tests=("${alltestpaths[@]}")
+        # shellcheck disable=SC2124
+        # shellcheck disable=SC2178
+        task_tests=${alltestpaths[@]}
     elif echo "$1" | grep -q "role";
     then
-        role_tests=("${alltestpaths[@]}")
+        # shellcheck disable=SC2124
+        # shellcheck disable=SC2178
+        role_tests=${alltestpaths[@]}
     elif echo "$1" | grep -q "utils" | grep -q "file";
     then
-        utils_file_tests=("${alltestpaths[@]}")
+        # shellcheck disable=SC2124
+        # shellcheck disable=SC2178
+        utils_file_tests=${alltestpaths[@]}
     else
-        init_tests=("${alltestpaths[@]}")
+        # shellcheck disable=SC2124
+        # shellcheck disable=SC2178
+        init_tests=${alltestpaths[@]}
     fi
 }
 
