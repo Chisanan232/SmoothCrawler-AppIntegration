@@ -65,9 +65,9 @@ from .task import (
     # For file based application integration
     CSVTask, XLSXTask, JSONTask, XMLTask, PropertiesTask,
     # For direct connect application integration
-    PipeTask, SocketTask,
+    # PipeTask, SocketTask,
     # For shared database application integration
-    SharedDatabaseTask
+    # SharedDatabaseTask
 )
 
 # For message queue application integration
