@@ -29,7 +29,7 @@ check_connection() {
     _service_port=$3
 
     # shellcheck disable=SC2006
-    for i in `seq 1 "$waiting_time"`;
+    for _ in `seq 1 "$waiting_time"`;
     do
         nc -z "$_service_ip" "$_service_port" && echo "✅ 🎊 Success" && System_Health=true && return 1
         echo -n .
